@@ -1,0 +1,36 @@
+name: Isolated Supabase integration
+on:
+  workflow_call:
+    inputs:
+      revision:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.revision }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      - name: Start an isolated Supabase with repository migrations
+        run: supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor
+      - name: Test against real Auth and PostgreSQL
+        run: |
+          supabase status -o env > "$RUNNER_TEMP/supabase-test.env"
+          set -a
+          source "$RUNNER_TEMP/supabase-test.env"
+          set +a
+          FARTA_TEST_SUPABASE_URL="$API_URL" FARTA_TEST_ANON_KEY="$ANON_KEY" FARTA_TEST_SERVICE_KEY="$SERVICE_ROLE_KEY" npm run test:integration --workspace @farta/api
+      - if: always()
+        run: supabase stop --no-backup
