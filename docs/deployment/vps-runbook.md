@@ -95,6 +95,11 @@ docker compose --env-file app.env --env-file releases/current.env -f compose.yml
 unhealthy não é reiniciado automaticamente apenas por esse estado; acompanhar alertas
 e investigar. Reinício automático cobre encerramento do processo.
 
+O timer `farta-monitor.timer` executa verificações a cada cinco minutos. Avisos
+locais podem ser consultados com `journalctl -t farta-monitor`. Ele não envia e-mail
+nem mensagens externas. Após testar as chaves, `infra/harden-ssh.sh` desabilita login
+por senha, preservando a porta e o acesso por chave.
+
 Se o Supabase pausar, reativá-lo no painel. Não trocar o banco nem reaplicar migrations
 para resolver uma pausa. Retornar à Vercel não resolve indisponibilidade do mesmo banco.
 Nunca repetir automaticamente pedidos após timeout: consultar o estado antes.
@@ -119,3 +124,7 @@ o piloto. Os limites iniciais precisam de medição sob carga real.
   de OOM, reinícios e erros; memória sustentada acima de 80% exige ajuste.
 - Registrar os resultados reais; testes com fixtures não comprovam configuração
   do banco Cloud, Google OAuth ou comportamento sob carga na VPS.
+
+O ensaio CI injeta o seed antes das migrations históricas de demonstração que
+dependem dele. Essa preparação ocorre apenas no checkout descartável do runner;
+não altera o histórico de migrations do projeto nem deve ser enviada ao Cloud.

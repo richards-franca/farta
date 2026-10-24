@@ -1,0 +1,6 @@
+[Unit]
+Description=Farta resource and availability checks
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/opt/farta/bin/monitor.sh

@@ -24,7 +24,11 @@ jobs:
         with:
           version: 2.122.0
       - name: Start an isolated Supabase with repository migrations
-        run: supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor
+        run: |
+          # Historical demo migrations reference the original seed company.
+          # Only this disposable checkout receives the prerequisite fixture.
+          cp supabase/seed.sql supabase/migrations/20260929000400_ci_demo_prerequisites.sql
+          supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor
       - name: Test against real Auth and PostgreSQL
         run: |
           supabase status -o env > "$RUNNER_TEMP/supabase-test.env"
