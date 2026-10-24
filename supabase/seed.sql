@@ -19,10 +19,10 @@ values
   ('00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000102', 'Arroz branco', 'ProStock', 'Pacote de 5 kg')
 on conflict (id) do update set name = excluded.name, brand = excluded.brand, description = excluded.description, updated_at = now();
 
-insert into public.product_variants (id, product_id, sku_code, name, sale_unit)
+insert into public.product_variants (id, product_id, sku_code, name, sale_unit, minimum_quantity)
 values
-  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000201', 'DEMO-AGUA-500', 'Unidade 500 ml', 'UN'),
-  ('00000000-0000-0000-0000-000000000302', '00000000-0000-0000-0000-000000000202', 'DEMO-ARROZ-5KG', 'Pacote 5 kg', 'UN')
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000201', 'DEMO-AGUA-500', 'Unidade 500 ml', 'UN', 1),
+  ('00000000-0000-0000-0000-000000000302', '00000000-0000-0000-0000-000000000202', 'DEMO-ARROZ-5KG', 'Pacote 5 kg', 'UN', 1)
 on conflict (id) do update set name = excluded.name, sale_unit = excluded.sale_unit, updated_at = now();
 
 insert into public.prices (id, company_id, sku_id, amount_minor, valid_from)

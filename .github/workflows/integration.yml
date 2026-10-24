@@ -27,7 +27,7 @@ jobs:
         run: |
           # Historical demo migrations reference the original seed company.
           # Only this disposable checkout receives the prerequisite fixture.
-          cp supabase/seed.sql supabase/migrations/20260929000400_ci_demo_prerequisites.sql
+          cp supabase/tests/demo-prerequisites.sql supabase/migrations/20260929000400_ci_demo_prerequisites.sql
           supabase start -x studio,realtime,imgproxy,edge-runtime,logflare,vector,supavisor
       - name: Test against real Auth and PostgreSQL
         run: |

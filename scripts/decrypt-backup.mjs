@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const [input,output]=process.argv.slice(2);
+if(!input||!output)throw new Error('Usage: node scripts/decrypt-backup.mjs input.aes output.sql');
+const repoRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const relative=path.relative(repoRoot,path.resolve(output));
+if(!relative.startsWith('..'+path.sep)&&!path.isAbsolute(relative))throw new Error('Decrypted backups must be written outside the repository');
+if(fs.existsSync(output))throw new Error('Refusing to overwrite an existing file');
+const key=fs.readFileSync(path.join(process.env.USERPROFILE,'.ssh','farta_backup.key'));
+const archive=fs.readFileSync(input);
+if(archive.subarray(0,6).toString()!=='FARTA1')throw new Error('Invalid archive');
+const decipher=crypto.createDecipheriv('aes-256-gcm',key,archive.subarray(6,18));
+decipher.setAuthTag(archive.subarray(18,34));
+const data=Buffer.concat([decipher.update(archive.subarray(34)),decipher.final()]);
+fs.writeFileSync(output,data,{mode:0o600,flag:'wx'});
+console.log('Archive authenticated and decrypted to the requested path.');

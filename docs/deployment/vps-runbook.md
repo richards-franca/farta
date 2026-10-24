@@ -63,6 +63,10 @@ O GitHub usa uma chave diferente da administrativa, restrita a login no registry
 deploy e rollback. O token temporário do job autoriza o download das imagens e expira
 com o job. Não copiar tokens do GitHub para o código ou para o frontend.
 
+`vercel.json` desabilita novos deploys automáticos para manter o deployment estável como
+referência de recuperação. Não remover essa configuração enquanto a Vercel depender
+de uma versão da aplicação anterior à API privada.
+
 O deploy usa digests, verifica os serviços e registra o commit. Falhas tentam
 restaurar a versão registrada anteriormente. A primeira instalação ainda não possui
 uma versão Docker anterior; a Vercel continua sendo a referência estável inicial.
@@ -109,6 +113,14 @@ Nunca repetir automaticamente pedidos após timeout: consultar o estado antes.
 Antes de migrations, exportar roles, schema e dados com o CLI Supabase e copiar os
 arquivos do Storage separadamente. Guardar cópia criptografada fora da VPS e testar
 a restauração em ambiente isolado. Não versionar dumps ou backups no GitHub.
+
+`node scripts/backup-cloud.mjs` executa esse backup na máquina Windows com o CLI
+Supabase já autenticado. A chave AES fica em `~/.ssh/farta_backup.key`; os arquivos
+criptografados ficam em `~/Documents/Farta-private-backups`. Guardar uma cópia segura
+da chave separada dos backups. O script também exporta os objetos do Storage.
+Para recuperar um arquivo: `node scripts/decrypt-backup.mjs arquivo.aes destino`.
+O destino descriptografado deve ficar fora do repositório. A autenticação AES verifica
+integridade; uma restauração completa do banco exige um Supabase isolado compatível.
 
 Manter a imagem anterior para rollback; não executar limpeza que a remova.
 Logs têm rotação e os serviços têm limites de memória. Swap reduz a chance de
