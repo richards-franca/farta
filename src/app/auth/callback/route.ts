@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+import { acceptCompanyInvitation } from '@/modules/invitations/invitation.actions';
+
 const INVITATION_TOKEN = /^[0-9a-f]{64}$/;
 
 export async function GET(request: Request) {
@@ -20,17 +22,15 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) throw error;
     if (INVITATION_TOKEN.test(invite)) {
-      const { data, error: acceptError } = await supabase.rpc("accept_company_invitation", {
-        p_invitation_token: invite,
-        p_full_name: undefined,
-      });
-      if (acceptError || !data?.[0]) {
+      const accepted=await acceptCompanyInvitation({token:invite});
+      if (!accepted.ok) {
         return NextResponse.redirect(new URL(`/auth/invite?token=${invite}&error=invite`, request.url));
       }
       return NextResponse.redirect(new URL("/catalogo", request.url));
     }
     return NextResponse.redirect(new URL("/auth/after-login", request.url));
-  } catch {
+  } catch (error) {
+    if(error instanceof Error && error.name === 'BackendUnavailableError') throw error;
     return NextResponse.redirect(new URL("/auth/login?error=auth_callback", request.url));
   }
 }

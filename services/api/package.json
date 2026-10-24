@@ -1,0 +1,28 @@
+{
+  "name": "@farta/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env.local src/server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "test:integration": "tsx --test test/integration.ts"
+  },
+  "dependencies": {
+    "@farta/contracts": "*",
+    "@fastify/multipart": "^9.0.0",
+    "@fastify/rate-limit": "^10.0.0",
+    "@fastify/swagger": "^9.0.0",
+    "@supabase/supabase-js": "^2.117.1",
+    "fastify": "^5.0.0",
+    "exceljs": "^4.4.0",
+    "pdfkit": "^0.20.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0",
+    "tsup": "^8.5.0"
+  }
+}

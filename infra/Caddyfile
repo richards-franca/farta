@@ -1,0 +1,10 @@
+www.farta.site {
+  redir https://farta.site{uri} permanent
+}
+farta.site {
+  encode zstd gzip
+  request_body {
+    max_size 8MB
+  }
+  reverse_proxy web:3000
+}

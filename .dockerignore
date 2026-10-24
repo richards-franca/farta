@@ -1,0 +1,11 @@
+.git
+.next
+**/node_modules
+**/dist
+**/.env*
+**/*.log
+**/*.pem
+**/*ed25519*
+coverage
+.vercel
+infra/releases

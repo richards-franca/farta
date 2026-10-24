@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  transpilePackages: ['@farta/contracts'],
+  experimental: { serverActions: { bodySizeLimit: '6mb' } },
   poweredByHeader: false,
   reactStrictMode: true,
   allowedDevOrigins: ['chastity-judgingly-petted.ngrok-free.dev'],

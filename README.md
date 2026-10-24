@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Farta
+
+Next.js frontend and a dedicated Fastify API, with PostgreSQL/Auth/Storage on Supabase.
+
+- Start the API: `npm run dev:api`.
+- Start the web app in a second terminal: `npm run dev`.
+- Validate both: `npm run check`.
+- [VPS operation and Docker guide](docs/deployment/vps-runbook.md).
+- [Backend architecture decision](docs/architecture/adr-003-dedicated-api-vps.md).
+
+The instructions below describe the original Next.js scaffold.
 
 ## Getting Started
 

@@ -1,5 +1,9 @@
 # Runbook de publicação — Farta
 
+> Evolução em 24/10/2026: para a aplicação com API dedicada e VPS, seguir
+> [o runbook da VPS](vps-runbook.md). O fluxo Vercel abaixo é histórico e deve
+> preservar a versão estável durante a transição.
+
 Use este fluxo sempre que o usuário disser “fazer deploy para o GitHub”, “subir para o GitHub” ou “publicar as alterações”.
 
 ## Escopo fixo

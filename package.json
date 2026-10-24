@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --incremental false",
-    "check": "npm run lint && npm run typecheck && npm run build"
+    "check": "npm run check:web && npm run typecheck --workspace @farta/api && npm run build:api && npm run test:api",
+    "dev:api": "npm run dev --workspace @farta/api",
+    "build:api": "npm run build --workspace @farta/api",
+    "test:api": "npm run test --workspace @farta/api",
+    "check:web": "npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -18,7 +22,8 @@
     "next": "16.3.6",
     "pdfkit": "^0.20.2",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@farta/contracts": "*"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -27,5 +32,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "typescript": "^5"
-  }
+  },
+  "workspaces": [
+    "services/api",
+    "packages/contracts"
+  ]
 }

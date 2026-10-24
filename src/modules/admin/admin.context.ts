@@ -1,22 +1,14 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-
+import {redirect} from 'next/navigation';
+import {getCurrentUser} from '@/lib/auth/current-user';
 export async function requirePlatformAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
-  const { data: profile } = await supabase.from("profiles").select("role,status").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "PLATFORM_ADMIN" || profile.status !== "ACTIVE") redirect("/acesso-negado?area=admin");
-  return { user };
+ const current=await getCurrentUser();
+ if(!current) redirect('/auth/login');
+ if(current.profile.role!=='PLATFORM_ADMIN') redirect('/acesso-negado?area=admin');
+ return {user:current.user};
 }
-
 export async function requireCompanyOperator() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
-  const { data: profile } = await supabase.from('profiles').select('role,status,company_id').eq('id', user.id).maybeSingle();
-  if (!profile || profile.status !== 'ACTIVE' || !['INTERNAL_OPERATOR', 'DRIVER'].includes(profile.role) || !profile.company_id) {
-    redirect('/acesso-negado?area=operacao');
-  }
-  return { user, companyId: profile.company_id as string, role: profile.role as 'INTERNAL_OPERATOR' | 'DRIVER' };
+ const current=await getCurrentUser();
+ if(!current) redirect('/auth/login');
+ if(!['INTERNAL_OPERATOR','DRIVER'].includes(current.profile.role)||!current.profile.company_id) redirect('/acesso-negado?area=operacao');
+ return {user:current.user,companyId:current.profile.company_id,role:current.profile.role as 'INTERNAL_OPERATOR'|'DRIVER'};
 }
