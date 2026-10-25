@@ -8,10 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --incremental false",
-    "check": "npm run check:web && npm run typecheck --workspace @farta/api && npm run build:api && npm run test:api",
+    "check": "npm run check:web && npm run typecheck --workspace @farta/api && npm run build:api && npm run test:api && npm run test:maintenance",
     "dev:api": "npm run dev --workspace @farta/api",
     "build:api": "npm run build --workspace @farta/api",
     "test:api": "npm run test --workspace @farta/api",
+    "test:maintenance": "node --test scripts/test/*.test.mjs",
     "check:web": "npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {

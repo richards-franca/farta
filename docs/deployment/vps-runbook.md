@@ -84,6 +84,11 @@ O callback do provedor Google continua sendo o do Supabase Cloud. Conferir tamb�
 as origens autorizadas no Google. Não aplicar `supabase config push` sem revisar
 o conjunto de alterações de Auth: a configuração local não é produção.
 
+O arquivo mínimo de produção está em `infra/supabase-auth/supabase/config.toml`.
+Usar CLI 2.122.0 e conferir `config diff` com `--workdir infra/supabase-auth` e
+`--project-ref` explícito antes de publicar. Apenas Site URL e retornos são declarados;
+configurações de Google, MFA e e-mail existentes precisam permanecer preservadas.
+
 ## Inspecionar e recuperar
 
 ```bash
@@ -136,6 +141,14 @@ o piloto. Os limites iniciais precisam de medição sob carga real.
   de OOM, reinícios e erros; memória sustentada acima de 80% exige ajuste.
 - Registrar os resultados reais; testes com fixtures não comprovam configuração
   do banco Cloud, Google OAuth ou comportamento sob carga na VPS.
+
+`FARTA_LIVE_SMOKE=1 node scripts/smoke-vps.mjs 900` mede dez acessos concorrentes
+autenticados à identidade via Next.js/API usando uma conta temporária sem empresa.
+Não cria pedidos de clientes; testes comerciais são executados no Supabase isolado
+do CI. Relatórios agregados ficam em `docs/deployment/validation`, sem tokens.
+Após confirmar que nenhum ensaio está ativo, `FARTA_LIVE_SMOKE=1 node
+scripts/cleanup-smoke.mjs` recupera a limpeza de fixtures interrompidas. O script
+recusa contas fora de seu prefixo ou perfis ativados/vinculados e respeita FKs.
 
 O ensaio CI injeta o seed antes das migrations históricas de demonstração que
 dependem dele. Essa preparação ocorre apenas no checkout descartável do runner;

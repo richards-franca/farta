@@ -36,6 +36,10 @@ Operações de negócio têm endpoints POST específicos sob `/v1`, permitindo p
 os contratos atuais das telas. Não existe endpoint que aceite SQL ou nome arbitrário
 de RPC. Exportações usam GET e a mesma autorização do pedido.
 
+Falhas de negócio mantêm o resultado `ok: false` já usado pelas telas. Erros de
+transporte e autorização usam HTTP 400/401/403/413/429/503. Escritas não são
+repetidas automaticamente após falha de rede ou timeout.
+
 `services/api/src/modules` contém os casos de uso extraídos. `src/modules` contém
 adaptadores do Next.js. Novas regras entram na API, com contratos e testes; UI não
 importa código de infraestrutura da API. O schema gerado do banco está compartilhado.

@@ -57,6 +57,7 @@ jobs:
           file: infra/web.Dockerfile
           push: true
           tags: ghcr.io/richards-franca/farta-web:${{ inputs.revision }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -71,6 +72,7 @@ jobs:
           file: infra/api.Dockerfile
           push: true
           tags: ghcr.io/richards-franca/farta-api:${{ inputs.revision }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max,scope=api
   deploy:
@@ -102,4 +104,4 @@ jobs:
           REVISION: ${{ inputs.revision }}
         run: ssh -i ~/.ssh/farta -o BatchMode=yes -o StrictHostKeyChecking=yes -p 22022 farta@143.95.174.202 "deploy $WEB $API $REVISION"
       - name: Check public HTTPS
-        run: curl --fail --retry 8 --retry-delay 10 https://farta.site/api/health
+        run: curl --fail --retry-all-errors --retry 8 --retry-delay 10 --connect-timeout 10 --max-time 20 https://farta.site/api/health
