@@ -1,5 +1,9 @@
 # Current State
 
+> Historical audit from 2026-09-23. For the dedicated API and VPS deployment,
+> see [the current operation guide](deployment/vps-runbook.md) and
+> [verified migration results](deployment/validation/README.md).
+
 **Task:** AUDIT-001  
 **Status:** DONE  
 **Audit date:** 2026-09-23  

@@ -83,6 +83,16 @@ test('image signature validation rejects disguised uploads',()=>{
   assert.equal(imageType(Buffer.from('<script>alert(1)</script>')),undefined);
   assert.equal(imageType(Buffer.from([137,80,78,71,13,10,26,10])),'image/png');
 });
+test('malformed JSON and unsupported content types are client errors',async()=>{
+ const f=fixture();const app=await buildApp(f.config);
+ try{
+  const url=routes['chat.chat.listDirectMessages'].path;
+  const malformed=await app.inject({method:'POST',url,headers,payload:'{'});
+  assert.equal(malformed.statusCode,400);
+  const unsupported=await app.inject({method:'POST',url,headers:{authorization:headers.authorization,'content-type':'application/xml'},payload:'<args/>'});
+  assert.equal(unsupported.statusCode,415);
+ }finally{await app.close();}
+});
 test('upload endpoint rejects incorrect bytes before calling storage',async()=>{
   const f=fixture({role:'PLATFORM_ADMIN'});const app=await buildApp(f.config);
   try {

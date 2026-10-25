@@ -127,6 +127,14 @@ Para recuperar um arquivo: `node scripts/decrypt-backup.mjs arquivo.aes destino`
 O destino descriptografado deve ficar fora do repositório. A autenticação AES verifica
 integridade; uma restauração completa do banco exige um Supabase isolado compatível.
 
+O backup inclui `managed-schema.sql.aes` e `restore-metadata.json.aes`, além dos
+arquivos SQL filtrados e do Storage. Para repetir a conferência isolada:
+`node scripts/restore-check.mjs C:\caminho\fora-do-repositorio\snapshot`.
+Esse comando cria um Postgres temporário na VPS, sem porta pública e com limite de
+256 MB, restaura os arquivos, confere contagens e remove o container. O relatório
+agregado vai para `docs/deployment/validation`. Não testa provedores OAuth nem
+substitui um ensaio completo de recuperação de todos os serviços Supabase.
+
 Manter a imagem anterior para rollback; não executar limpeza que a remova.
 Logs têm rotação e os serviços têm limites de memória. Swap reduz a chance de
 encerramento abrupto, mas não substitui RAM. Verificar CPU, memória e disco durante
@@ -153,3 +161,7 @@ recusa contas fora de seu prefixo ou perfis ativados/vinculados e respeita FKs.
 O ensaio CI injeta o seed antes das migrations históricas de demonstração que
 dependem dele. Essa preparação ocorre apenas no checkout descartável do runner;
 não altera o histórico de migrations do projeto nem deve ser enviada ao Cloud.
+
+Resultados efetivamente executados e limites estão em [validação](validation/README.md).
+O dump completo exige Auth/Storage e extensões compatíveis; não restaurar o dump
+filtrado em um PostgreSQL vazio esperando reproduzir todos os serviços Supabase.

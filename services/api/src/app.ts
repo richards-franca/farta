@@ -92,9 +92,9 @@ export async function buildApp(options: AppOptions) {
   });
   app.setErrorHandler((error,request,reply)=>{
     const httpError=error as {validation?:unknown;statusCode?:number};
-    const status = error instanceof ApiError ? error.statusCode : httpError.validation ? 400 : httpError.statusCode === 413 ? 413 : httpError.statusCode === 429 ? 429 : 500;
-    const code = error instanceof ApiError ? error.code : status===400?'INVALID_INPUT':status===429?'RATE_LIMITED':status===413?'PAYLOAD_TOO_LARGE':'INTERNAL_ERROR';
-    const message = error instanceof ApiError ? error.message : status===400?'Confira os dados informados.':status===429?'Muitas solicitações. Aguarde um instante.':status===413?'Arquivo ou dados acima do limite permitido.':'Não foi possível concluir a operação.';
+    const status = error instanceof ApiError ? error.statusCode : httpError.validation || httpError.statusCode===400 ? 400 : httpError.statusCode === 413 ? 413 : httpError.statusCode===415 ? 415 : httpError.statusCode === 429 ? 429 : 500;
+    const code = error instanceof ApiError ? error.code : status===400?'INVALID_INPUT':status===429?'RATE_LIMITED':status===413?'PAYLOAD_TOO_LARGE':status===415?'UNSUPPORTED_MEDIA_TYPE':'INTERNAL_ERROR';
+    const message = error instanceof ApiError ? error.message : status===400?'Confira os dados informados.':status===429?'Muitas solicitações. Aguarde um instante.':status===413?'Arquivo ou dados acima do limite permitido.':status===415?'Formato de envio não suportado.':'Não foi possível concluir a operação.';
     request.log.warn({code,status,requestId:request.id},'Request failed');
     return reply.code(status).send({ok:false,message,code,requestId:request.id});
   });
