@@ -48,3 +48,8 @@ infra/*.env
 infra/releases/
 !.env.example
 !**/.env.example
+
+# Private backup archives and keys never belong in source control.
+*.aes
+*.key
+/backups/

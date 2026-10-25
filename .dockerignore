@@ -9,3 +9,7 @@
 coverage
 .vercel
 infra/releases
+supabase/.temp
+supabase/.branches
+**/*.aes
+**/*.key
