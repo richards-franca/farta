@@ -7,7 +7,7 @@ import { defaultNavProfile, navByProfile, type NavProfile } from "./nav-config";
 import styles from "./PrimaryNav.module.css";
 
 const iconPaths: Record<string, string> = {
-  home: "M3 10.5 12 3l9 7.5M5.5 9v10h13V9M9 19v-6h6v6", catalog: "M4 5h16M4 10h16M4 15h10M4 20h7",
+  home: "M3 10.5 12 3l9 7.5M5.5 9v10h13V9M9 19v-6h6v6", catalog: "m7 4-4 7h18l-4-7M3 11l2 9h14l2-9M9 14v3m6-3v3",
   orders: "M5 4h14v16H5zM8 8h8M8 12h8M8 16h5", delivery: "M3 6h11v10H3zM14 10h4l3 3v3h-7zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
   inventory: "M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5 8-4.5M12 12v9", support: "M4 5h16v11H8l-4 4zM8 9h8M8 12h5",
 };

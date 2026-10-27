@@ -11,7 +11,7 @@ function fixture({role='CUSTOMER',status='ACTIVE',membership=true,down=false}={}
   const upstream:typeof fetch=async(input,init)=>{
     const url=new URL(String(input));
     const authorization=new Headers(init?.headers).get('authorization');
-    requests.push({url,authorization,body:init?.body?JSON.parse(String(init.body)):undefined});
+    requests.push({url,authorization,body:typeof init?.body==='string'?JSON.parse(init.body):undefined});
     if(down) return Response.json({message:'private database error'},{status:503});
     if(url.pathname==='/auth/v1/user') {
       if(authorization!=='Bearer valid-user-token') return Response.json({message:'invalid token'},{status:401});
@@ -20,6 +20,8 @@ function fixture({role='CUSTOMER',status='ACTIVE',membership=true,down=false}={}
     if(url.pathname.endsWith('/profiles')) return Response.json([{id:userId,company_id:companyId,role,status,full_name:'Test',phone:null}]);
     if(url.pathname.endsWith('/company_memberships')) return Response.json(membership?[{id:'membership'}]:[]);
     if(url.pathname.endsWith('/companies')) return Response.json([{display_name:'Company A'}]);
+    if(url.pathname.startsWith('/storage/v1/object/catalog-banners/')) return Response.json({Id:userId,Key:'catalog-banners/test.png'});
+    if(url.pathname.endsWith('/rpc/admin_create_banner')) return Response.json({id:userId,status:'INACTIVE'});
     if(url.pathname.endsWith('/rpc/list_direct_messages')) return Response.json([]);
     if(url.pathname.endsWith('/rpc/accept_company_invitation')) return Response.json([{company_id:companyId,company_name:'Company A'}]);
     return Response.json([]);
@@ -101,4 +103,21 @@ test('upload endpoint rejects incorrect bytes before calling storage',async()=>{
     const result=await app.inject({method:'POST',url:routes['admin.admin.uploadAdminProductImage'].path,headers:{authorization:headers.authorization,'content-type':`multipart/form-data; boundary=${boundary}`},payload});
     assert.equal(result.statusCode,400);assert.equal(f.requests.some(r=>r.url.pathname.includes('/storage/')),false);
   } finally {await app.close();}
+});
+
+test('valid banner multipart upload reaches private Storage and the authorized RPC',async()=>{
+ const f=fixture({role:'PLATFORM_ADMIN'});const app=await buildApp(f.config);
+ try {
+  const form=new FormData();
+  form.set('input',JSON.stringify({title:'Test banner',altText:'Test image',sortOrder:0,status:'INACTIVE'}));
+  form.set('file',new Blob([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==','base64')],{type:'image/png'}),'test.png');
+  const encoded=new Response(form);
+  const result=await app.inject({method:'POST',url:routes['banners.banner.createAdminBanner'].path,headers:{authorization:headers.authorization,'content-type':encoded.headers.get('content-type')!},payload:Buffer.from(await encoded.arrayBuffer())});
+  assert.equal(result.statusCode,200,result.body);
+  assert.equal(result.json().ok,true,result.body);
+  assert.equal(f.requests.some(r=>r.url.pathname.includes('/storage/v1/object/catalog-banners/')),true);
+  const rpc=f.requests.find(r=>r.url.pathname.endsWith('/rpc/admin_create_banner'))!;
+  assert.equal(rpc.authorization,'Bearer valid-user-token');
+  assert.equal((rpc.body as {p_status:string}).p_status,'INACTIVE');
+ } finally {await app.close();}
 });

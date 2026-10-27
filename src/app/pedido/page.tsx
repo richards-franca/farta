@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -19,6 +20,8 @@ import {
   confirmActiveCart,
   getActiveCart,
   setCartItemQuantity,
+  listCatalog,
+  type CatalogListItem,
   type ActiveCart,
 } from "@/modules/orders/order.actions";
 import styles from "./pedido.module.css";
@@ -40,6 +43,7 @@ const addressText = (a: AddressOption) =>
 
 export default function Pedido() {
   const [cart, setCart] = useState<ActiveCart | null>(null);
+  const [catalogImages,setCatalogImages]=useState<Record<string,CatalogListItem>>({});
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [itemError, setItemError] = useState<{
@@ -83,9 +87,10 @@ export default function Pedido() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([getCustomerContext(), getActiveCart(), listActiveAddresses()])
-      .then(([context, currentCart, activeAddresses]) => {
+    Promise.all([getCustomerContext(), getActiveCart(), listActiveAddresses(),listCatalog()])
+      .then(([context, currentCart, activeAddresses,catalog]) => {
         if (!active) return;
+        if(catalog.ok)setCatalogImages(Object.fromEntries(catalog.products.map(product=>[product.skuId,product])));
         setLoading(false);
         if (context.ok) {
           setEstablishments(context.establishments);
@@ -541,7 +546,7 @@ export default function Pedido() {
                   <thead>
                     <tr>
                       <th scope="col">Produto</th>
-                      <th scope="col">Embalagem</th>
+                      <th scope="col">Preço estimado</th>
                       <th scope="col">Quantidade</th>
                       <th scope="col">Subtotal</th>
                     </tr>
@@ -549,8 +554,8 @@ export default function Pedido() {
                   <tbody>
                     {activeCart.items.map((item) => (
                       <tr key={item.id}>
-                        <td>{item.name}</td>
-                        <td>{item.detail}</td>
+                        <td><div className={styles.productIdentity}><Image src={catalogImages[item.skuId]?.imageUrl||'/product-placeholder.svg'} alt={catalogImages[item.skuId]?.imageAlt||item.name} width={64} height={64}/><div><strong>{item.name}</strong><small>{item.detail} · Mínimo {item.minimumQuantity}</small></div></div></td>
+                        <td>{money(item.unitPriceMinor)}</td>
                         <td>
                           <CartItemControls
                             name={item.name}
@@ -701,8 +706,9 @@ export default function Pedido() {
           <Card className={styles.summary}>
             <h2>Resumo do pedido</h2>
             <p>
-              Itens <b aria-live="polite">{activeCart.units} unidades</b>
+              Produtos diferentes <b aria-live="polite">{activeCart.items.length}</b>
             </p>
+            <p>Volumes no pedido <b>{activeCart.units}</b></p>
             <p>
               Subtotal <b>{money(activeCart.totalMinor)}</b>
             </p>
@@ -744,6 +750,8 @@ export default function Pedido() {
                   ? "Pedido enviado ✓"
                   : "Enviar pedido para análise"}
             </Button>
+            <Link className={styles.continueShopping} href="/catalogo">Continuar comprando</Link>
+            <ol className={styles.steps}><li>Envie para análise</li><li>Revise os preços finais</li><li>Confirme seu pedido</li></ol>
             {confirmed && (
               <p className={styles.success} role="status">
                 Pedido #{orderNumber} enviado para análise com sucesso.{" "}

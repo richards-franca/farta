@@ -28,19 +28,23 @@ export function BannersAdmin({ initialBanners }: { initialBanners: BannerWithIma
   async function create(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file) return;
+    const form=event.currentTarget;
+    if(file.size>5*1024*1024){setError('Use uma imagem de até 5 MB.');return;}
     setBusy(true); setError(''); setNotice('');
+    try {
     const result = await createAdminBanner({ file, altText, title, sortOrder, status: 'INACTIVE' });
     if (!result.ok) setError(result.message);
-    else { setNotice('Banner cadastrado como inativo. Revise os dados e ative quando estiver pronto.'); setFile(null); setAltText(''); setTitle(''); setSortOrder(0); await reload(); }
-    setBusy(false);
+    else { setNotice('Banner cadastrado como inativo. Revise os dados e ative quando estiver pronto.'); form.reset();setFile(null); setAltText(''); setTitle(''); setSortOrder(0); await reload(); }
+    }catch{setError('Não foi possível enviar o banner. Tente novamente.');}finally{setBusy(false);}
   }
 
   async function save(banner: BannerWithImage, form: HTMLFormElement) {
     const values = new FormData(form);
     setBusy(true); setError(''); setNotice('');
+    try {
     const result = await updateAdminBanner({ id: banner.id, altText: String(values.get('altText') ?? ''), title: String(values.get('title') ?? ''), sortOrder: Number(values.get('sortOrder') ?? 0), status: String(values.get('status')) as 'ACTIVE' | 'INACTIVE' });
     if (!result.ok) setError(result.message); else { setNotice('Banner atualizado com sucesso.'); await reload(); }
-    setBusy(false);
+    }catch{setError('Não foi possível salvar o banner. Tente novamente.');}finally{setBusy(false);}
   }
 
   return <>

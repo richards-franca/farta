@@ -53,3 +53,4 @@ infra/releases/
 *.aes
 *.key
 /backups/
+/test-results/

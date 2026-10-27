@@ -1,3 +1,4 @@
+@font-face { font-family: Inter; src: url('/fonts/InterVariable.ttf') format('truetype'); font-style: normal; font-weight: 100 900; font-display: swap; }
 :root {
   --farta-color-brand-primary: #19392a;
   --farta-color-brand-hover: #23482d;
@@ -43,7 +44,7 @@
   --farta-type-body-sm: 400 14px/20px Inter, system-ui, sans-serif;
   --farta-type-label: 600 14px/20px Inter, system-ui, sans-serif;
   --farta-type-caption: 400 13px/18px Inter, system-ui, sans-serif;
-  --farta-type-number: 700 36px/40px Georgia, serif;
+  --farta-type-number: 400 36px/40px Inter, system-ui, sans-serif;
 
   /* Compatibility aliases for pages being migrated in later batches. */
   --surface: var(--farta-color-surface-page);

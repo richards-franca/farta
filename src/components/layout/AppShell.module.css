@@ -36,6 +36,16 @@
 .notificationLink:focus-visible, .profileLink:focus-visible, .actions button:focus-visible, .sidebarBrand:focus-visible { outline: 3px solid var(--farta-color-accent); outline-offset: 2px; }
 .content { min-width: 0; min-height: calc(100svh - 72px); }
 .customerShell .content { min-height: calc(100svh - 90px); }
+.sidebarAccount { display: flex; gap: 12px; align-items: center; margin-top: auto; color: #fff; font: var(--farta-type-body-sm); }
+.sidebarAccount > svg { flex: 0 0 24px; }
+.sidebarAccount strong { display: block; overflow-wrap: anywhere; }
+.sidebarAccount small { display: block; margin-top: 4px; color: #bbcDC2; }
+.cartLink { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; padding: 0 10px; color: var(--farta-color-brand-primary); background: #edf3e7; border-radius: 10px; }
+.cartLink b { display: grid; place-items: center; min-width: 22px; height: 22px; color: #fff; background: var(--farta-color-brand-primary); border-radius: 50%; font-size: 12px; }
+.profileLink > b { display: grid; place-items: center; width: 38px; height: 38px; background: #e8eee6; border-radius: 50%; }
+@media (max-width: 1023px) { .sidebarAccount { display: none; } }
+@media (min-width: 640px) and (max-width: 1023px) { .customerShell .header { flex-wrap: wrap; } .customerSearch { order: 3; flex-basis: 100%; margin: 0; } }
+@media (max-width: 639px) { .customerShell .header { min-height: 64px; padding-inline: 12px; gap: 8px; } .customerWorkspaceLabel { display: none; } .cartLink { gap: 4px; padding-inline: 6px; } }
 @media (max-width: 1023px) {
   .shell, .customerShell { grid-template-columns: 76px minmax(0, 1fr); }
   .sidebar { padding: 16px 8px; }
