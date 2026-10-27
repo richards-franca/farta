@@ -1,5 +1,13 @@
 # REDESIGN-02 — Lote V1 cliente
 
+## Revisão e validação — 27/10/2026
+
+O registro abaixo preserva a sequência histórica. A revisão atual de banners e
+cliente está em `customer-banner-review-2026-10-27.md`, com falha SQL corrigida,
+ajustes de fidelidade e bateria real de navegador. O resultado consolidado está em
+`../deployment/validation/customer-ui-2026-10-27.json`; não interpretar as antigas
+pendências de QA como se nenhuma verificação posterior tivesse sido executada.
+
 **Status:** implementado e validado localmente  
 
 O lote atual tambÃ©m alinhou empresas, estabelecimentos e convites aos frames administrativos: tabelas responsivas, filtros horizontais, seleÃ§Ã£o visual de perfil no convite e confirmaÃ§Ãµes de status preservadas.

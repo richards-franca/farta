@@ -11,7 +11,7 @@ assert.equal(process.env.NEXT_PUBLIC_SITE_URL,'http://127.0.0.1:3000');
 const admin=createClient(provider,process.env.FARTA_TEST_SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const company='00000000-0000-0000-0000-000000000001';
 const output='test-results/customer-ui';fs.mkdirSync(output,{recursive:true});
-const report={bannerLifecycle:false,customerJourney:false,orderConfirmation:false,responsiveWidths:[],consoleErrors:[]};
+const report={bannerLifecycle:false,customerJourney:false,orderConfirmation:false,responsiveWidths:[],responsivePages:{},consoleErrors:[]};
 const processes=[];let browser;
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==','base64');
 async function account(role){
@@ -23,7 +23,15 @@ async function account(role){
 }
 async function ready(url){for(let i=0;i<90;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,1000));}throw Error('UI test server did not become ready');}
 async function login(page,who){await page.goto('http://127.0.0.1:3000/auth/login');await page.getByLabel('E-mail',{exact:true}).fill(who.email);await page.getByLabel('Senha',{exact:true}).fill(who.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await page.waitForURL(url=>!url.pathname.startsWith('/auth/'));assert.equal(new URL(page.url()).origin,'http://127.0.0.1:3000');}
-async function screenshot(page,name){await page.screenshot({path:`${output}/${name}.png`,fullPage:true});}
+async function screenshot(page,name){await page.evaluate(()=>{window.scrollTo({top:0,left:0,behavior:"instant"});return document.fonts.ready;});await page.screenshot({path:`${output}/${name}.png`,fullPage:true});}
+async function responsive(page,name){
+ for(const width of [320,390,768,1024,1440]){
+  await page.setViewportSize({width,height:1000});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),`${name}: global horizontal overflow at ${width}`);
+  await screenshot(page,`${name}-${width}`);
+ }
+ report.responsivePages[name]=[320,390,768,1024,1440];
+}
 try {
  const platform=await account('PLATFORM_ADMIN'),customer=await account('CUSTOMER');
  processes.push(spawn(process.execPath,['node_modules/tsx/dist/cli.mjs','services/api/src/server.ts'],{env:{...process.env,SUPABASE_URL:provider,SUPABASE_ANON_KEY:process.env.FARTA_TEST_ANON_KEY},stdio:'ignore'}));
@@ -64,6 +72,7 @@ try {
   await screenshot(client,`catalog-${width}`);report.responsiveWidths.push(width);
  }
  await client.setViewportSize({width:1440,height:1000});await client.goto('http://127.0.0.1:3000/pedido');await expect(client.getByRole('heading',{name:'Seus produtos'})).toBeVisible();await screenshot(client,'checkout');
+ await responsive(client,'checkout');
  const orderNote='UI validation '+randomUUID();
  await client.getByRole('button',{name:/Test Street/}).first().click();
  await client.getByLabel('Observações para a operação (opcional)').fill(orderNote);
@@ -79,10 +88,15 @@ try {
  await expect(client.getByRole('button',{name:'Confirmar preços e pedido',exact:true})).toHaveCount(0);
  await expect.poll(async()=>{const result=await admin.from('orders').select('status').eq('id',submitted.data.id).single();assert.equal(result.error,null);return result.data.status;}).toMatch(/^(CUSTOMER_CONFIRMED|CONFIRMED)$/);
  await screenshot(client,'order-confirmed');report.orderConfirmation=true;
+ await responsive(client,'order-confirmed');
  await client.goto('http://127.0.0.1:3000/perfil');await expect(client.getByRole('heading',{name:'Meu perfil'})).toBeVisible();await screenshot(client,'profile');
+ await responsive(client,'profile');
  await client.goto('http://127.0.0.1:3000/pedidos');await expect(client.getByRole('heading',{name:/pedidos/i}).first()).toBeVisible();await screenshot(client,'orders');
+ await responsive(client,'orders');
  await client.goto('http://127.0.0.1:3000/notificacoes');await expect(client.getByRole('heading',{name:'Notificações',exact:true})).toBeVisible();await screenshot(client,'notifications');
+ await expect(client.locator('body')).not.toContainText('CUSTOMER_CONFIRMED');await responsive(client,'notifications');
  await client.goto('http://127.0.0.1:3000/mensagens');await expect(client.getByRole('heading',{name:'Mensagens',exact:true})).toBeVisible();await screenshot(client,'messages');
+ await responsive(client,'messages');
  await client.goto('http://127.0.0.1:3000/admin/banners');assert.ok(!new URL(client.url()).pathname.startsWith('/admin/'),'Customer reached banner admin');
  report.customerJourney=true;assert.deepEqual(report.consoleErrors,[]);
  console.log('UI checks passed: banner lifecycle, customer pages, role protection and five responsive widths.');

@@ -6,8 +6,12 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { listOrderNotifications } from "@/modules/orders/order.actions";
 import styles from "./notificacoes.module.css";
+import {orderReasonLabel} from '@/lib/order-presentation';
 
 const labels: Record<string, string> = {
+  SUBMITTED_FOR_REVIEW:'Pedido enviado para análise',
+  PRICED_AWAITING_CUSTOMER_CONFIRMATION:'Preços prontos para sua revisão',
+  CUSTOMER_CONFIRMED:'Pedido confirmado',
   CONFIRMED: "Pedido confirmado",
   PICKING: "Pedido em separação",
   READY_FOR_DISPATCH: "Pedido pronto para envio",
@@ -40,8 +44,8 @@ export default async function NotificationsPage() {
         {!result.ok ? <div className={styles.error} role="alert"><strong>Não foi possível carregar as notificações.</strong><p>{result.message}</p></div> : result.notifications.length === 0 ? <div className={styles.empty} role="status"><strong>Nenhuma atualização encontrada</strong><p>As mudanças dos seus pedidos aparecerão aqui.</p><Link className={styles.emptyAction} href="/pedidos">Ver meus pedidos</Link></div> : <ul className={styles.list}>
           {result.notifications.map((item) => <li className={styles.item} key={item.id}>
             <div className={styles.itemCopy}>
-              <strong>{labels[item.toStatus] ?? item.toStatus}</strong>
-              <p>Pedido <Link href={`/pedidos/${item.orderId}`}>#{item.orderNumber}</Link>{item.reason ? ` · ${item.reason}` : ""}</p>
+              <strong>{labels[item.toStatus] ?? 'Atualização do pedido'}</strong>
+              <p>Pedido <Link href={`/pedidos/${item.orderId}`}>#{item.orderNumber}</Link>{item.reason ? ` · ${orderReasonLabel(item.reason)}` : ""}</p>
             </div>
             <Badge tone={notificationTone(item.toStatus)}><time dateTime={item.changedAt}>{new Date(item.changedAt).toLocaleString("pt-BR")}</time></Badge>
           </li>)}

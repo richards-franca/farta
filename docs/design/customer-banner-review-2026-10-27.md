@@ -55,6 +55,13 @@ cancelado para publicar a revisão visual final. Novas revisões precisam repeti
 essa bateria antes do deploy. A comparação humana usa a geometria das referências;
 não é uma comparação automática de pixels com conteúdo fictício.
 
+Repetição final aprovada em `ff3eec1`, integração do workflow `40569981034`:
+`docs/deployment/validation/customer-ui-2026-10-27.json`. Capturas de catálogo,
+checkout, perfil, pedidos, detalhe confirmado, notificações, mensagens e admin de
+banners foram inspecionadas. A matriz de cinco larguras mede o catálogo; as demais
+páginas foram verificadas na jornada desktop. Isso não equivale a certificar toda
+rota, perfil, viewport ou configuração externa.
+
 ## Conteúdo e limites
 
 Não inserir automaticamente campanhas fictícias no banco. O primeiro banner

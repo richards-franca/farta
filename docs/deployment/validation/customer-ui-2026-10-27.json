@@ -1,0 +1,18 @@
+{
+    "bannerLifecycle":  true,
+    "customerJourney":  true,
+    "orderConfirmation":  true,
+    "responsiveWidths":  [
+                             320,
+                             390,
+                             768,
+                             1024,
+                             1440
+                         ],
+    "consoleErrors":  [
+
+                      ],
+    "revision":  "ff3eec1f58e5b22843e180a0c7ac967ea4dba9f2",
+    "workflowRun":  "40569981034",
+    "environment":  "Isolated local Supabase, real Next.js/API, Chromium; no customer production writes"
+}

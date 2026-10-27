@@ -30,6 +30,7 @@
 .tableWrap td strong, .tableWrap td b { display: block; color: var(--farta-color-text-primary); }
 .tableWrap td small { display: block; margin-top: 4px; color: var(--farta-color-text-muted); }
 .details { display: inline-flex; align-items: center; min-height: 44px; color: var(--farta-color-brand-primary); font: var(--farta-type-label); text-decoration: underline; text-underline-offset: 3px; }
+.tableWrap td:last-child .details { margin-right: 16px; }
 .mobileList { display: none; }
 .empty { display: grid; justify-items: center; gap: 8px; padding: 48px 20px; color: var(--farta-color-text-secondary); text-align: center; }
 .empty strong { color: var(--farta-color-text-primary); font: var(--farta-type-h3); }

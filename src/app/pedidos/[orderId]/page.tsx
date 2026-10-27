@@ -9,6 +9,7 @@ import { ReceiptAction } from "./receipt-action";
 import { CancelOrderAction } from "./cancel-action";
 import { FinalPriceAction } from "./final-price-action";
 import styles from "./order-detail.module.css";
+import {orderReasonLabel} from '@/lib/order-presentation';
 
 const labels: Record<string, string> = {
   SUBMITTED_FOR_REVIEW: "Aguardando análise",
@@ -63,7 +64,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ o
       </Card>
       <Card className={styles.history}>
         <h2>Histórico</h2>
-        <ol>{order.history.map((entry, index) => <li className={historyTone(entry.toStatus)} key={`${entry.changedAt}-${index}`}><strong>{labels[entry.toStatus] ?? entry.toStatus}</strong><small>{new Date(entry.changedAt).toLocaleString("pt-BR")}</small>{entry.reason && <small>{entry.reason}</small>}</li>)}</ol>
+        <ol>{order.history.map((entry, index) => <li className={historyTone(entry.toStatus)} key={`${entry.changedAt}-${index}`}><strong>{labels[entry.toStatus] ?? 'Atualização do pedido'}</strong><small>{new Date(entry.changedAt).toLocaleString("pt-BR")}</small>{entry.reason && <small>{orderReasonLabel(entry.reason)}</small>}</li>)}</ol>
       </Card>
     </div>
   </main>;
