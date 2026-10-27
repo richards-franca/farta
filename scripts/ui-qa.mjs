@@ -51,6 +51,8 @@ try {
  processes.push(spawn(process.execPath,['node_modules/tsx/dist/cli.mjs','services/api/src/server.ts'],{env:{...process.env,SUPABASE_URL:provider,SUPABASE_ANON_KEY:process.env.FARTA_TEST_ANON_KEY},stdio:'ignore'}));
  processes.push(spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1'],{env:process.env,stdio:'ignore'}));
  await ready('http://127.0.0.1:3001/health/live');await ready('http://127.0.0.1:3000/api/health');
+ const foreignLogin=await fetch('http://127.0.0.1:3000/api/auth/login',{method:'POST',headers:{origin:'https://foreign.example.invalid','content-type':'application/json'},body:'{}'});assert.equal(foreignLogin.status,403);
+ const missingLogin=await fetch('http://127.0.0.1:3000/api/auth/login',{method:'POST',headers:{origin:'http://127.0.0.1:3000','content-type':'application/json'},body:'{}'});assert.equal(missingLogin.status,400);
  browser=await chromium.launch();
  const adminContext=await browser.newContext({viewport:{width:1303,height:900}}),clientContext=await browser.newContext({viewport:{width:1440,height:1000}});
  const adminPage=await adminContext.newPage(),client=await clientContext.newPage();

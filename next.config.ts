@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  deploymentId: process.env.NEXT_DEPLOYMENT_ID,
   output: 'standalone',
   transpilePackages: ['@farta/contracts'],
   experimental: { serverActions: { bodySizeLimit: '6mb' } },

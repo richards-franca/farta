@@ -37,6 +37,8 @@ jobs:
           set +a
           FARTA_TEST_SUPABASE_URL="$API_URL" FARTA_TEST_ANON_KEY="$ANON_KEY" FARTA_TEST_SERVICE_KEY="$SERVICE_ROLE_KEY" npm run test:integration --workspace @farta/api
       - name: Build web and test the real customer and banner interfaces
+        env:
+          NEXT_DEPLOYMENT_ID: ${{ inputs.revision }}
         run: |
           set -a
           source "$RUNNER_TEMP/supabase-test.env"

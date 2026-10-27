@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { linkGoogleIdentity, signIn, signInWithGoogle } from '@/modules/auth/auth.actions';
+import { linkGoogleIdentity, signInWithGoogle } from '@/modules/auth/auth.actions';
 import { AuthCard, AuthShell, GoogleMark, PasswordField, styles } from '../auth-shell';
 
 const TOKEN = /^[0-9a-f]{64}$/i;
@@ -39,8 +39,9 @@ export default function LoginContent() {
     setField(undefined);
     setLoading(true);
     try {
-      const result = await signIn({ email, password, inviteToken: inviteToken || undefined });
-      if (!result.ok) { setError(result.message); setField(result.field); return; }
+      const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+      const result = await response.json() as {ok:boolean;message?:string;field?:'email'|'password'};
+      if (!result.ok) { setError(result.message??'Confira os dados informados.'); setField(result.field); return; }
       if (linkGoogle) {
         const linkResult = await linkGoogleIdentity();
         if (!linkResult.ok) { setError(linkResult.message); return; }
