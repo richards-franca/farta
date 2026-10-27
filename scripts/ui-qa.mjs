@@ -13,6 +13,7 @@ const company='00000000-0000-0000-0000-000000000001';
 const output='test-results/customer-ui';fs.mkdirSync(output,{recursive:true});
 const report={bannerLifecycle:false,customerJourney:false,orderConfirmation:false,responsiveWidths:[],responsivePages:{},consoleErrors:[]};
 const processes=[];let browser;
+const watchdog=setTimeout(()=>{console.error('UI QA exceeded the allowed runtime.');fs.writeFileSync(`${output}/report.json`,JSON.stringify(report,null,2));for(const child of processes)child.kill('SIGKILL');process.exit(1);},180000);
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==','base64');
 async function account(role){
  const email=`ui-${randomUUID()}@example.invalid`,password=randomUUID()+'aA1!';
@@ -23,12 +24,17 @@ async function account(role){
 }
 async function ready(url){for(let i=0;i<90;i++){try{if((await fetch(url)).ok)return;}catch{}await new Promise(r=>setTimeout(r,1000));}throw Error('UI test server did not become ready');}
 async function login(page,who){await page.goto('http://127.0.0.1:3000/auth/login');await page.getByLabel('E-mail',{exact:true}).fill(who.email);await page.getByLabel('Senha',{exact:true}).fill(who.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await page.waitForURL(url=>!url.pathname.startsWith('/auth/'));assert.equal(new URL(page.url()).origin,'http://127.0.0.1:3000');}
-async function screenshot(page,name){await page.evaluate(()=>{window.scrollTo({top:0,left:0,behavior:"instant"});return document.fonts.ready;});await page.screenshot({path:`${output}/${name}.png`,fullPage:true});}
+async function screenshot(page,name,fullPage=true){
+ console.log('Capturing '+name);report.lastCapture=name;
+ await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+ await page.waitForFunction(()=>document.fonts.status==='loaded',{},{timeout:10000});
+ await page.screenshot({path:`${output}/${name}.png`,fullPage,timeout:15000,animations:'disabled'});
+}
 async function responsive(page,name){
  for(const width of [320,390,768,1024,1440]){
   await page.setViewportSize({width,height:1000});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),`${name}: global horizontal overflow at ${width}`);
-  await screenshot(page,`${name}-${width}`);
+  await screenshot(page,`${name}-${width}`,false);
  }
  report.responsivePages[name]=[320,390,768,1024,1440];
 }
@@ -105,6 +111,7 @@ try {
  if(browser){let i=0;for(const context of browser.contexts())for(const page of context.pages()){try{await screenshot(page,`failure-${i++}`);}catch{}}}
  throw error;
 } finally {
- if(browser)await browser.close();for(const child of processes)child.kill('SIGTERM');
+ if(browser)await browser.close();for(const child of processes){child.kill('SIGTERM');child.unref();}
  fs.writeFileSync(`${output}/report.json`,JSON.stringify(report,null,2));
+ clearTimeout(watchdog);
 }
