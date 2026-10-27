@@ -17,6 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const shouldRenderShell = pathname ? !pathname.startsWith("/auth") && !pathname.startsWith("/acesso-negado") : false;
   const isAdmin = pathname?.startsWith("/admin") ?? false;
+  const profileRoute=pathname==='/perfil';
   const [identity,setIdentity]=useState<{name:string;role:NavProfile}|null>(null);
   const [cartCount,setCartCount]=useState(0);
   const customerShell = shouldRenderShell && (identity ? identity.role==='CUSTOMER' : !isAdmin && !pathname?.startsWith("/operacao"));
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
   const workspaceLabel = isAdmin ? "Administração" : pathname?.startsWith("/operacao") ? "Operação" : "Área de trabalho";
 
-  return <div className={`${styles.shell} ${customerShell ? styles.customerShell : ""}`}>
+  return <div className={`${styles.shell} ${customerShell ? styles.customerShell : ""} ${profileRoute?styles.profileShell:''}`}>
     <a className={styles.skipLink} href="#main-content">Pular para o conteúdo</a>
     <aside className={styles.sidebar}>
       <Link className={styles.sidebarBrand} href="/" aria-label="Farta, início"><Image src="/farta-logo-light.png" alt="" width={188} height={188} priority /></Link>
@@ -88,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className={styles.workspace}>
       <header className={styles.header}>
         <Link className={styles.mobileBrand} href="/" aria-label="Farta, início"><Image src="/farta-logo.png" alt="" width={48} height={48} priority /><span>Farta</span></Link>
-        {catalogRoute ? <div className={styles.customerWorkspaceLabel}>
+        {profileRoute?<Link className={styles.workspaceLabel} href={identity?.role==='PLATFORM_ADMIN'?'/admin/empresas':'/catalogo'}>Área de trabalho</Link>:catalogRoute ? <div className={styles.customerWorkspaceLabel}>
           <small>Comprando para</small>
           {customerEstablishments.length > 0 ? <select aria-label="Estabelecimento da compra" value={customerEstablishmentId} onChange={event => selectCatalogEstablishment(event.target.value)}>
             {customerEstablishments.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}

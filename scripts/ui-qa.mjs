@@ -34,6 +34,8 @@ try {
  const adminPage=await adminContext.newPage(),client=await clientContext.newPage();
  for(const page of [adminPage,client]){page.on('pageerror',e=>report.consoleErrors.push(e.message));page.setDefaultTimeout(30000);}
  await login(adminPage,platform);await adminPage.goto('http://127.0.0.1:3000/admin/banners');
+ await screenshot(adminPage,'banner-admin-before-upload');
+ if(!await adminPage.getByLabel('Arquivo',{exact:true}).count())throw Error('Banner admin did not render: '+new URL(adminPage.url()).pathname+' '+(await adminPage.locator('body').innerText()).slice(0,1400));
  await adminPage.getByLabel('Arquivo',{exact:true}).setInputFiles({name:'banner.png',mimeType:'image/png',buffer:png});
  await adminPage.getByLabel('Título opcional').fill('Destaque de validação');await adminPage.getByLabel('Texto alternativo',{exact:true}).fill('Imagem de validação');
  await adminPage.getByRole('button',{name:'Cadastrar banner',exact:true}).click();
@@ -68,6 +70,9 @@ try {
  await client.goto('http://127.0.0.1:3000/admin/banners');assert.ok(!new URL(client.url()).pathname.startsWith('/admin/'),'Customer reached banner admin');
  report.customerJourney=true;assert.deepEqual(report.consoleErrors,[]);
  console.log('UI checks passed: banner lifecycle, customer pages, role protection and five responsive widths.');
+} catch(error) {
+ if(browser){let i=0;for(const context of browser.contexts())for(const page of context.pages()){try{await screenshot(page,`failure-${i++}`);}catch{}}}
+ throw error;
 } finally {
  if(browser)await browser.close();for(const child of processes)child.kill('SIGTERM');
  fs.writeFileSync(`${output}/report.json`,JSON.stringify(report,null,2));

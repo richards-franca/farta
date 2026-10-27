@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth/current-user';
 import { redirect } from 'next/navigation';
 import { ProfileForm } from './profile-form';
 import styles from './profile.module.css';
+import { SignOutButton } from '@/components/layout/SignOutButton';
 
 const roleLabels: Record<string, string> = {
   CUSTOMER: 'Cliente',
@@ -29,5 +30,6 @@ export default async function ProfilePage() {
         <ProfileForm initialPhone={current.profile.phone} />
       </Card>
     </div>
+    <Card className={styles.session}><div><h2>Sessão e segurança</h2><p>Encerre o acesso desta conta neste dispositivo.</p></div><SignOutButton className={styles.logout}/></Card>
   </main>;
 }

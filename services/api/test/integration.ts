@@ -38,6 +38,7 @@ test('real PostgreSQL, Auth, RPC and RLS preserve tenant isolation and the order
     return result.json();
   }
   try {
+    const banners=await call(platform,'banners.banner.listAdminBanners');assert.equal(banners.ok,true,banners.message);
     const context=await call(a,'customer.customer.getCustomerContext');assert.equal(context.ok,true);assert.ok(context.selected.id);
     const catalog=await call(a,'orders.order.listCatalog');assert.equal(catalog.ok,true);assert.ok(catalog.products.some((p:{skuId:string;priceMinor:number})=>p.skuId===sku && p.priceMinor===299));
     const catalogB=await call(b,'orders.order.listCatalog');assert.equal(catalogB.ok,true);assert.ok(catalogB.products.every((p:{priceMinor:number|null})=>p.priceMinor===null));
