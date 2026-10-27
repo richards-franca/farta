@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProductImage } from '@/components/ui/ProductImage';
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
@@ -133,7 +133,7 @@ export default function Catalogo() {
         const quantity = catalogQuantities[product.skuId] ?? minimum;
         return <Card className={styles.product} key={product.skuId}>
           {product.priceMinor == null && <Badge tone="default">Preço não definido</Badge>}
-          <div className={styles.productImage}><Image src={imageUrl} alt={product.imageAlt ?? product.name} width={640} height={480} /></div>
+          <div className={styles.productImage}><ProductImage src={imageUrl} alt={product.imageAlt ?? product.name} width={640} height={480} /></div>
           <div className={styles.productCategory}>{product.category || "Farta"}</div>
           <small>{product.brand} / {product.detail}</small>
           <h2>{product.name}</h2>

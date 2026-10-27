@@ -1,4 +1,4 @@
-.page { max-width: 900px; margin: 0 auto; padding: 32px; }
+.page { --farta-type-h1: 600 32px/40px Inter, system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 32px; }
 .page h1 { font-size: 32px; line-height: 40px; }
 .grid { display: grid; grid-template-columns: minmax(240px, 348px) minmax(0, 1fr); gap: 20px; margin-top: 28px; }
 .session { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 24px; }

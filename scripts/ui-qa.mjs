@@ -59,6 +59,7 @@ try {
  await screenshot(client,'catalog-filled');
  for(const width of [320,390,768,1024,1440]){
   await client.setViewportSize({width,height:1000});await client.evaluate(()=>document.fonts.ready);
+  assert.ok(await client.evaluate(()=>document.fonts.check('16px Inter')),'The reference font did not load');
   assert.ok(await client.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),`Global horizontal overflow at ${width}`);
   await screenshot(client,`catalog-${width}`);report.responsiveWidths.push(width);
  }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from 'next/image';
+import { ProductImage } from '@/components/ui/ProductImage';
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -554,7 +554,7 @@ export default function Pedido() {
                   <tbody>
                     {activeCart.items.map((item) => (
                       <tr key={item.id}>
-                        <td><div className={styles.productIdentity}><Image src={catalogImages[item.skuId]?.imageUrl||'/product-placeholder.svg'} alt={catalogImages[item.skuId]?.imageAlt||item.name} width={64} height={64}/><div><strong>{item.name}</strong><small>{item.detail} · Mínimo {item.minimumQuantity}</small></div></div></td>
+                        <td><div className={styles.productIdentity}><ProductImage src={catalogImages[item.skuId]?.imageUrl} alt={catalogImages[item.skuId]?.imageAlt||item.name} width={64} height={64}/><div><strong>{item.name}</strong><small>{item.detail} · Mínimo {item.minimumQuantity}</small></div></div></td>
                         <td>{money(item.unitPriceMinor)}</td>
                         <td>
                           <CartItemControls
