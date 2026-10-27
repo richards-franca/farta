@@ -2,6 +2,19 @@
 
 Verificação consolidada em 25/10/2026. Produção: https://farta.site.
 
+## Correção de redirecionamento — 27/10/2026
+
+Relato do usuário confirmado por HTTP: `/auth/after-login` e `/auth/callback`
+retornavam Location com `https://0.0.0.0:3000`. Os handlers usavam `request.url`,
+cuja origem era interna no Next.js standalone. Agora usam a URL pública configurada,
+incluindo callback, pós-login, convites e encaminhamento OAuth na raiz.
+
+O ensaio de 25/10 conferia apenas o pathname do retorno, sem validar o domínio;
+seu sucesso não comprovava navegação correta no navegador. Essa lacuna foi corrigida:
+o ensaio autenticado exige Location completo, e o release verifica cinco retornos
+públicos de autenticação, além de HTTPS e assets. O teste novo reproduziu a falha
+na versão anterior antes da publicação da correção.
+
 ## Evidências
 
 - `npm run check`: lint, tipos e builds de web/API, onze casos da API e seis casos

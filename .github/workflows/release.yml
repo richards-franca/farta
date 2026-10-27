@@ -105,3 +105,8 @@ jobs:
         run: ssh -i ~/.ssh/farta -o BatchMode=yes -o StrictHostKeyChecking=yes -p 22022 farta@143.95.174.202 "deploy $WEB $API $REVISION"
       - name: Check public HTTPS
         run: curl --fail --retry-all-errors --retry 8 --retry-delay 10 --connect-timeout 10 --max-time 20 https://farta.site/api/health
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.revision }}
+      - name: Check public authentication redirects and assets
+        run: node scripts/check-public.mjs

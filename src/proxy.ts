@@ -1,13 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getSiteUrl } from '@/lib/supabase/env';
 
 export async function proxy(request: NextRequest) {
   // Some OAuth configurations may temporarily return to the Site URL with
   // the authorization code. Forward that code to the application callback so
   // it is exchanged for a session instead of being lost by the home redirect.
   if (request.nextUrl.pathname === '/' && request.nextUrl.searchParams.has('code')) {
-    const callbackUrl = request.nextUrl.clone();
-    callbackUrl.pathname = '/auth/callback';
+    const callbackUrl = new URL('/auth/callback', getSiteUrl());
+    callbackUrl.search = request.nextUrl.search;
     return NextResponse.redirect(callbackUrl);
   }
 

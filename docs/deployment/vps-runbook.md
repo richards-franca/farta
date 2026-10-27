@@ -73,6 +73,11 @@ uma versão Docker anterior; a Vercel continua sendo a referência estável inic
 
 ## Domínio e Auth
 
+Redirecionamentos absolutos de autenticação usam `getSiteUrl()` e
+`NEXT_PUBLIC_SITE_URL`. Dentro do container, `request.url` pode conter
+`0.0.0.0:3000`; não usá-lo como origem pública. O verificador de produção confere
+o endereço completo do cabeçalho Location, incluindo protocolo e domínio.
+
 `farta.site` aponta para 143.95.174.202; `www` aponta para o domínio principal.
 Caddy obtém e renova certificados. As portas 80/443 também precisam estar liberadas
 no painel do provedor. Não publicar 3000/3001 no host.

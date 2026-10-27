@@ -48,7 +48,7 @@ try {
   const start=performance.now();
   try {
    const response=await fetch('https://farta.site/auth/after-login',{headers:{cookie},redirect:'manual',signal:AbortSignal.timeout(20_000)});
-   if(response.status!==307 || new URL(response.headers.get('location'),'https://farta.site').pathname!=='/acesso-negado')failure(`HTTP_${response.status}`);
+   if(response.status!==307 || response.headers.get('location')!=='https://farta.site/acesso-negado')failure(`HTTP_${response.status}_REDIRECT`);
    await response.arrayBuffer();
   } catch(error) {failure(String(error.cause?.code??error.name??'NETWORK_ERROR').replace(/[^A-Z0-9_]/gi,''));}
   samples.push(performance.now()-start);report.requests++;
