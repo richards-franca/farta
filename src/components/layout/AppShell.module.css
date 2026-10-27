@@ -51,7 +51,7 @@
 @media (max-width: 639px) { .customerShell .header { min-height: 64px; padding-inline: 12px; gap: 8px; } .customerWorkspaceLabel { display: none; } .cartLink { gap: 4px; padding-inline: 6px; } }
 @media (max-width: 1023px) {
   .shell, .customerShell { grid-template-columns: 76px minmax(0, 1fr); }
-  .sidebar { padding: 16px 8px; }
+  .sidebar, .customerShell .sidebar { padding: 16px 8px; }
   .sidebarBrand { height: 54px; padding: 0; }
   .sidebarBrand img { width: 54px; height: 54px; }
   .tagline, .workspaceLabel { display: none; }

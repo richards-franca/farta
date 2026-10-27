@@ -36,7 +36,12 @@ async function screenshot(page,name,fullPage=true){
 async function responsive(page,name){
  for(const width of [320,390,768,1024,1440]){
   await page.setViewportSize({width,height:1000});
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),`${name}: global horizontal overflow at ${width}`);
+  const bounds=await page.evaluate(()=>({width:window.innerWidth,scroll:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>window.innerWidth+1).slice(0,15).map(el=>({tag:el.tagName,class:el.className,right:Math.round(el.getBoundingClientRect().right),overflow:getComputedStyle(el).overflowX}))}));
+  assert.ok(bounds.scroll<=bounds.width+1,`${name}: global horizontal overflow at ${width}: ${JSON.stringify(bounds)}`);
+  if(name==='orders'&&width===768){
+   const table=page.getByRole('table',{name:'Lista de pedidos'});
+   assert.ok(await table.evaluate(el=>{const wrap=el.parentElement;wrap.scrollLeft=wrap.scrollWidth;return wrap.scrollLeft>0;}),'Tablet order table must keep internal scrolling');
+  }
   await screenshot(page,`${name}-${width}`,false);
  }
  report.responsivePages[name]=[320,390,768,1024,1440];

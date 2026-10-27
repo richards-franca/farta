@@ -1,5 +1,5 @@
-.page { min-height: 100svh; background: var(--farta-color-surface-page); }
-.content { max-width: 1280px; margin: 0 auto; padding: 38px 40px 72px; }
+.page { min-width: 0; width: 100%; overflow-x: clip; min-height: 100svh; background: var(--farta-color-surface-page); }
+.content { min-width: 0; width: 100%; max-width: 1280px; margin: 0 auto; padding: 38px 40px 72px; }
 .titleRow { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .eyebrow { margin: 0 0 8px; color: var(--farta-color-brand-primary); font: var(--farta-type-label); letter-spacing: .08em; }
 .titleRow h1 { margin: 0; font: var(--farta-type-h1); letter-spacing: -.035em; }
@@ -22,7 +22,7 @@
 .filterSummary { margin: 16px 0; color: var(--farta-color-text-secondary); font: var(--farta-type-caption); }
 .notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; padding: 12px 16px; color: var(--farta-color-brand-primary); background: var(--farta-color-success-soft); border: 1px solid var(--farta-color-success); border-radius: var(--farta-radius-control); font: var(--farta-type-body-sm); }
 .errorNotice { color: var(--farta-color-danger); background: var(--farta-color-danger-soft); border-color: var(--farta-color-danger); }
-.tableWrap { overflow-x: auto; border: var(--farta-border-default); border-radius: 8px; }
+.tableWrap { min-width: 0; max-width: 100%; overflow-x: auto; border: var(--farta-border-default); border-radius: 8px; }
 .tableWrap table { width: 100%; min-width: 860px; border-collapse: collapse; }
 .tableWrap th { padding: 14px 16px; color: var(--farta-color-text-secondary); background: var(--farta-color-surface-secondary); border-bottom: var(--farta-border-default); font: var(--farta-type-caption); font-weight: 700; text-align: left; text-transform: uppercase; letter-spacing: .04em; }
 .tableWrap td { padding: 16px; color: var(--farta-color-text-secondary); border-bottom: var(--farta-border-default); font: var(--farta-type-body-sm); vertical-align: middle; }
