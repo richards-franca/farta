@@ -84,7 +84,8 @@ try {
  const session=await operator.auth.signInWithPassword(platform);assert.equal(session.error,null);
  const priced=await fetch('http://127.0.0.1:3001/v1/admin/admin/set-order-final-prices',{method:'POST',headers:{authorization:`Bearer ${session.data.session.access_token}`,'content-type':'application/json'},body:JSON.stringify({args:[submitted.data.id,items.data.map(item=>({skuId:item.sku_id,unitPriceMinor:item.unit_price_minor}))]})});
  assert.equal((await priced.json()).ok,true);
- await client.goto('http://127.0.0.1:3000/pedidos/'+submitted.data.id);await client.getByRole('button',{name:'Confirmar preços e pedido',exact:true}).click();
+ await client.goto('http://127.0.0.1:3000/pedidos/'+submitted.data.id);
+ await Promise.all([client.waitForNavigation({waitUntil:'domcontentloaded'}),client.getByRole('button',{name:'Confirmar preços e pedido',exact:true}).click()]);
  await expect(client.getByRole('button',{name:'Confirmar preços e pedido',exact:true})).toHaveCount(0);
  await expect.poll(async()=>{const result=await admin.from('orders').select('status').eq('id',submitted.data.id).single();assert.equal(result.error,null);return result.data.status;}).toMatch(/^(CUSTOMER_CONFIRMED|CONFIRMED)$/);
  await screenshot(client,'order-confirmed');report.orderConfirmation=true;
