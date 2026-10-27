@@ -15,6 +15,13 @@ o ensaio autenticado exige Location completo, e o release verifica cinco retorno
 públicos de autenticação, além de HTTPS e assets. O teste novo reproduziu a falha
 na versão anterior antes da publicação da correção.
 
+Correção implantada: `d129cb5`, workflow `40542691643` concluído com sucesso.
+Os cinco retornos públicos e os assets passaram após deploy. O relatório
+`auth-redirect-2026-10-27.json` registra uma requisição autenticada com conta
+pendente, Location completo em `https://farta.site/acesso-negado`, zero falhas e
+remoção da conta temporária. Duração zero significa conferência funcional única,
+não ensaio de carga. Login Google interativo e pedido real continuam fora desse teste.
+
 ## Evidências
 
 - `npm run check`: lint, tipos e builds de web/API, onze casos da API e seis casos

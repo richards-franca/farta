@@ -1,0 +1,14 @@
+{
+  "createdAt": "2026-10-27T16:42:20.719Z",
+  "target": "https://farta.site",
+  "concurrency": 10,
+  "durationSeconds": 0,
+  "complete": true,
+  "requests": 1,
+  "failures": 0,
+  "errorCounts": {},
+  "errorEvents": [],
+  "p95Milliseconds": 606,
+  "temporaryAccountDeleted": true,
+  "scope": "Authenticated pending-account SSR and backend identity; no customer orders or business data are written."
+}
