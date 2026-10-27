@@ -154,6 +154,17 @@ Para publicar o primeiro destaque: acessar `/admin/banners`, enviar imagem e tex
 salvar como inativo, revisar e mudar o status para ativo. Sem banners ativos, a
 área desaparece do catálogo. Não é necessário reiniciar os containers após publicar.
 
+Em 27/10 o usuário aprovou o banner da referência; ele já está ativo, com imagem
+privada e auditoria verificadas. Evidência em `validation/banner-publication-2026-10-27.json`.
+O utilitário `scripts/publish-reference-banner.mjs` foi usado somente nessa primeira
+publicação e recusa banco com banners existentes. Gerenciar os próximos pelo admin.
+
+Login por senha usa `POST /api/auth/login`, preservando a autenticação Supabase
+no servidor. Se uma aba aberta antes de um deploy ainda apresentar erro de Server
+Action antiga, recarregar a página. Os builds de release definem
+`NEXT_DEPLOYMENT_ID` com o SHA completo; não reutilizar a identificação em versões
+diferentes. A confirmação com uma conta real continua parte do piloto.
+
 - Conferir login/sessão e fluxo completo de pedido com contas autorizadas.
 - Validar papéis, acesso entre empresas, convites, imagens e exportações.
 - Ensaiar retorno de versão, preservando o mesmo banco.

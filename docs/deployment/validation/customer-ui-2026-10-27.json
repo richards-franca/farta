@@ -9,10 +9,55 @@
                              1024,
                              1440
                          ],
+    "responsivePages":  {
+                            "checkout":  [
+                                             320,
+                                             390,
+                                             768,
+                                             1024,
+                                             1440
+                                         ],
+                            "order-confirmed":  [
+                                                    320,
+                                                    390,
+                                                    768,
+                                                    1024,
+                                                    1440
+                                                ],
+                            "profile":  [
+                                            320,
+                                            390,
+                                            768,
+                                            1024,
+                                            1440
+                                        ],
+                            "orders":  [
+                                           320,
+                                           390,
+                                           768,
+                                           1024,
+                                           1440
+                                       ],
+                            "notifications":  [
+                                                  320,
+                                                  390,
+                                                  768,
+                                                  1024,
+                                                  1440
+                                              ],
+                            "messages":  [
+                                             320,
+                                             390,
+                                             768,
+                                             1024,
+                                             1440
+                                         ]
+                        },
     "consoleErrors":  [
 
                       ],
-    "revision":  "ff3eec1f58e5b22843e180a0c7ac967ea4dba9f2",
-    "workflowRun":  "40569981034",
+    "lastCapture":  "messages-1440",
+    "revision":  "30435d7f6a9e43f0322232f8ca11a8abd4ebeb6a",
+    "workflowRun":  "40578267127",
     "environment":  "Isolated local Supabase, real Next.js/API, Chromium; no customer production writes"
 }

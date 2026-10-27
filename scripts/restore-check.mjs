@@ -46,7 +46,7 @@ try{
  run(target,Buffer.concat([Buffer.from('SET session_replication_role=replica;\n'),decrypt('data.sql.aes'),Buffer.from('\nSET session_replication_role=origin;\n')]));
  report.databaseRestored=true;
  const data=decrypt('data.sql.aes').toString();
- const essential=['auth.users','public.companies','public.profiles','public.orders','public.order_items','storage.objects'];
+ const essential=['auth.users','public.companies','public.profiles','public.orders','public.order_items','public.banners','storage.objects'];
  for(const table of essential){
   const [s,t]=table.split('.');
   const header=new RegExp('^COPY "?'+s+'"?\\."?'+t+'"? \\([^\\n]*\\) FROM stdin;\\n','m');
@@ -57,6 +57,7 @@ try{
   if(actual!==expected)throw new Error('Restored table count differs from snapshot');
  }
  report.tableCountsMatched=true;
+ report.checkedTables=essential;
  const manifest=JSON.parse(decrypt('storage-manifest.json.aes'));
  for(const object of manifest.objects){const b=decrypt(object.filename);if(object.metadata?.size!==undefined && Number(object.metadata.size)!==b.length)throw new Error('Storage archive size differs from its metadata');}
  report.storageArchivesAuthenticated=true;

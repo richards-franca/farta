@@ -1,0 +1,57 @@
+// One authorized publication, not an application credential or an automatic seed.
+import cp from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import {randomUUID} from 'node:crypto';
+import nextEnv from '@next/env';
+import {createClient} from '@supabase/supabase-js';
+import {prepareDumpScript} from './lib/prepare-dump.mjs';
+if(process.env.FARTA_PUBLISH_REFERENCE_BANNER!=='1')throw Error('Explicit reference publication flag is required.');
+nextEnv.loadEnvConfig(process.cwd());
+const ref=fs.readFileSync('supabase/.temp/project-ref','utf8').trim();
+if(!/^[a-z]{20}$/.test(ref))throw Error('Invalid linked project');
+const title='Mais frescor. Mais motivos para voltar.';
+const description='Frutas e verduras para completar sua reposição.';
+const source='https://images.unsplash.com/photo-1588873150512-3c07d8ab267a?fit=max&fm=jpg&q=80&w=1080';
+const keys=cp.spawnSync('cmd.exe',['/d','/s','/c',`npx.cmd --yes supabase@2.122.0 projects api-keys --project-ref ${ref} -o json`],{encoding:'utf8',timeout:60000});
+if(keys.status)throw Error('Maintenance authorization unavailable; diagnostics suppressed');
+const service=JSON.parse(keys.stdout).find(item=>item.name==='service_role')?.api_key;
+if(!service)throw Error('Maintenance credential unavailable');
+const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,service,{auth:{persistSession:false,autoRefreshToken:false}});
+const existing=await admin.from('banners').select('id,title,status');
+if(existing.error)throw Error('Unable to verify existing banners');
+if(existing.data.length)throw Error('Refusing initial publication because banners already exist; review them first.');
+const download=await fetch(source,{signal:AbortSignal.timeout(30000)});
+if(!download.ok)throw Error('Reference image unavailable');
+const bytes=Buffer.from(await download.arrayBuffer());
+if(bytes.length>5*1024*1024||bytes[0]!==0xff||bytes[1]!==0xd8||bytes[2]!==0xff)throw Error('Reference image must be a JPEG under 5 MB');
+const id=randomUUID(),objectPath=`banners/${id}/${randomUUID()}.jpg`;
+const upload=await admin.storage.from('catalog-banners').upload(objectPath,bytes,{contentType:'image/jpeg',upsert:false});
+if(upload.error)throw Error('Unable to upload reference image');
+const dry=cp.spawnSync('cmd.exe',['/d','/s','/c','npx.cmd --yes supabase@2.122.0 db dump --linked --dry-run'],{encoding:'utf8',timeout:60000,maxBuffer:10*1024*1024});
+if(dry.status||!dry.stdout.includes('pg_dump'))throw Error('Unable to authorize publication transaction; uploaded object retained');
+const prepared=prepareDumpScript(dry.stdout,fs.readFileSync('supabase/.temp/pooler-url','utf8').trim(),ref);
+const environment=prepared.split('\n').filter(line=>/^export [A-Z_]+=/.test(line)).join('\n');
+const literal=value=>"'"+String(value).replaceAll("'","''")+"'";
+const metadata=JSON.stringify({source:'owner-authorized-reference-publication',approvalDate:'2026-10-27',reference:'Pencil Sdnoa',mime_type:'image/jpeg',byte_size:bytes.length});
+// No human account is impersonated. Maintenance has its own explicit audit actor.
+const sql=`BEGIN;
+SET LOCAL ROLE postgres;
+INSERT INTO public.banners(id,storage_object_path,mime_type,byte_size,alt_text,title,status,sort_order)
+VALUES(${literal(id)},${literal(objectPath)},'image/jpeg',${bytes.length},${literal(description)},${literal(title)},'ACTIVE',0);
+INSERT INTO public.audit_logs(actor_profile_id,actor_role,action,resource_type,resource_id,outcome,metadata)
+VALUES(NULL,'MAINTENANCE','BANNER_CREATED','banner',${literal(id)},'SUCCESS',${literal(metadata)}::jsonb);
+COMMIT;`;
+const result=cp.spawnSync('ssh',['-i',path.join(process.env.USERPROFILE,'.ssh/farta_admin_ed25519'),'-o','BatchMode=yes','-p','22022','root@143.95.174.202','docker run --rm -i --network host --entrypoint bash postgres:17-bookworm -s'],{input:environment+"\npsql -X -qAt -v ON_ERROR_STOP=1 <<'FARTA_SQL'\n"+sql+'\nFARTA_SQL\n',encoding:'utf8',timeout:60000,maxBuffer:1024*1024});
+const verified=await admin.from('banners').select('id,status').eq('id',id).single();
+if(result.status||verified.error||verified.data?.status!=='ACTIVE')throw Error('Publication requires verification; object retained and raw diagnostics suppressed');
+const signed=await admin.storage.from('catalog-banners').createSignedUrl(objectPath,60);
+if(signed.error)throw Error('Published image verification failed');
+const image=await fetch(signed.data.signedUrl,{signal:AbortSignal.timeout(15000)});
+if(!image.ok)throw Error('Published image is not available');
+await image.arrayBuffer();
+const audit=await admin.from('audit_logs').select('id').eq('resource_id',id).eq('action','BANNER_CREATED').single();
+if(audit.error)throw Error('Publication audit record unavailable');
+const report={createdAt:new Date().toISOString(),id,title,status:'ACTIVE',mime:'image/jpeg',bytes:bytes.length,imageAvailable:true,audited:true};
+fs.writeFileSync('docs/deployment/validation/banner-publication-2026-10-27.json',JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify(report));

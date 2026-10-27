@@ -55,19 +55,38 @@ cancelado para publicar a revisão visual final. Novas revisões precisam repeti
 essa bateria antes do deploy. A comparação humana usa a geometria das referências;
 não é uma comparação automática de pixels com conteúdo fictício.
 
-Repetição final aprovada em `ff3eec1`, integração do workflow `40569981034`:
+Repetição final aprovada em `30435d7`, workflow [40578267127](https://github.com/richards-franca/farta/actions/runs/40578267127), incluindo build e deploy:
 `docs/deployment/validation/customer-ui-2026-10-27.json`. Capturas de catálogo,
 checkout, perfil, pedidos, detalhe confirmado, notificações, mensagens e admin de
-banners foram inspecionadas. A matriz de cinco larguras mede o catálogo; as demais
-páginas foram verificadas na jornada desktop. Isso não equivale a certificar toda
-rota, perfil, viewport ou configuração externa.
+banners foram inspecionadas. A matriz cobre sete páginas em cinco larguras:
+catálogo, checkout, pedido confirmado, perfil, pedidos, notificações e mensagens.
+Uma falha real em pedidos a 768px foi corrigida: o texto acessível do cabeçalho
+escapava do contêiner de rolagem. O contêiner agora estabelece o contexto de
+posicionamento; a tabela mantém a rolagem interna sem ampliar a página.
+Isso não equivale a certificar toda rota, perfil, viewport ou configuração externa.
+
+## Login entre publicações
+
+O relato de falha genérica de acesso coincidiu com logs de Server Action antiga
+não encontrada, enviados por uma aba aberta antes do deploy. O login por senha
+agora usa `POST /api/auth/login`, com verificação de origem, JSON limitado a 4 KiB
+e a autenticação existente no servidor. O build identifica a versão com
+`NEXT_DEPLOYMENT_ID`. O CI verifica origem estrangeira recusada, campos ausentes
+e login real pela interface com os cookies de sessão. Uma aba que ainda contém
+o código antigo precisa ser recarregada uma vez. Isso não substitui a confirmação
+de acesso do usuário real nem garante ausência de mudanças de versão em toda mutação.
 
 ## Conteúdo e limites
 
-Não inserir automaticamente campanhas fictícias no banco. O primeiro banner
-depende da arte/conteúdo escolhido pelo usuário e pode ser cadastrado em
-`/admin/banners`, revisado como inativo e ativado depois. Um catálogo sem banners
-ativos não exibe o carrossel e continua utilizável.
+O usuário aprovou explicitamente o banner da referência em 27/10. Publicado
+ativo no Cloud: “Mais frescor. Mais motivos para voltar.”, descrição “Frutas e
+verduras para completar sua reposição.”, com a mesma foto de hortifruti do Pencil.
+Imagem JPEG de 187.598 bytes no Storage privado, entrega assinada HTTP 200 e
+registro de auditoria confirmados em `banner-publication-2026-10-27.json`.
+`scripts/publish-reference-banner.mjs` é uma manutenção pontual autorizada:
+recusa execução sem flag explícita ou se já existir qualquer banner. Não o repetir
+para editar campanhas; usar `/admin/banners`. A credencial de manutenção não foi
+incluída no runtime nem versionada. Dados fictícios dos testes não foram publicados.
 
 Consentimento Google real, entrega de e-mails e acompanhamento de carga comercial
 no piloto continuam validações separadas. Testes locais com fixtures não comprovam

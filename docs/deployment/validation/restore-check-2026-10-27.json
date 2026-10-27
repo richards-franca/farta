@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-10-27T20:39:31.349Z",
+  "source": "encrypted snapshot 2026-10-27T20-38-17-716Z; managed schema, metadata, data and Storage; no Cloud query",
+  "databaseRestored": true,
+  "tableCountsMatched": true,
+  "storageArchivesAuthenticated": true,
+  "checkedTables": [
+    "auth.users",
+    "public.companies",
+    "public.profiles",
+    "public.orders",
+    "public.order_items",
+    "public.banners",
+    "storage.objects"
+  ]
+}

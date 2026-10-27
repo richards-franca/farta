@@ -24,6 +24,24 @@ não ensaio de carga. Login Google interativo e pedido real continuam fora desse
 
 ## Evidências
 
+- Revisão do cliente e login publicada em `30435d7`, release
+  [40578267127](https://github.com/richards-franca/farta/actions/runs/40578267127)
+  concluído com sucesso. SHA conferido na VPS, HTTPS e retornos públicos aprovados.
+  `customer-ui-2026-10-27.json` registra sete páginas em cinco larguras, lifecycle
+  de banners e pedido até confirmação, com Auth/API/PostgreSQL reais isolados.
+  O login por senha usa endpoint estável e foi exercitado pela interface; origem
+  estrangeira e campos ausentes foram recusados. Isso não comprova a sessão da
+  conta real do usuário em produção.
+- `banner-publication-2026-10-27.json`: banner da referência aprovado pelo usuário,
+  publicado ACTIVE, imagem privada acessível por assinatura e auditoria confirmadas.
+  Detalhes em `docs/design/customer-banner-review-2026-10-27.md`.
+- `restore-check-2026-10-27.json`: novo backup após a publicação, com dois buckets
+  e dois objetos do Storage. Banco restaurado isoladamente; contagens de sete
+  tabelas, incluindo banners, coincidiram. Arquivos criptografados do Storage
+  autenticados e tamanhos conferidos; container temporário removido. Nenhum
+  dado descriptografado foi persistido no repositório. Não ensaia a execução
+  completa dos serviços Auth/Storage de um Supabase próprio.
+
 - `npm run check`: lint, tipos e builds de web/API, onze casos da API e seis casos
   de segurança das ferramentas de manutenção aprovados.
 - O workflow de release executa um Supabase descartável com as migrations e testa
