@@ -7,6 +7,7 @@ import type { ChangeEvent } from "react";
 import { CartItemControls } from "@/components/cart/CartItemControls";
 import { CategoryIcon, CommerceIcon } from "@/components/ui/CommerceIcon";
 import { BannerCarousel } from "./banner-carousel";
+import { CatalogSkeleton } from './catalog-skeleton';
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -112,7 +113,8 @@ export default function Catalogo() {
     busyRef.current.delete(item.skuId); setBusySkus([...busyRef.current]);
   }
 
-  return <main className={styles.page} aria-busy={busy || loading}><div className={styles.content}>
+  if(loading)return <CatalogSkeleton/>;
+  return <main className={styles.page} aria-busy={busy}><div className={styles.content}>
     <div className={styles.contextBar}><label htmlFor="catalog-establishment">Estabelecimento</label><select id="catalog-establishment" value={selectedId} disabled={busy || loading || busySkus.length > 0} onChange={event => void changeEstablishment(event.target.value)}><option value="">Selecione</option>{establishments.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select>{busy && <span role="status" aria-live="polite">Atualizando estabelecimento…</span>}</div>
     <section className={styles.discoveryHeader} aria-labelledby="catalog-title">
       <PageHeader title="Olá, vamos abastecer sua operação?" description="Tudo o que seu negócio precisa, em um só pedido." />

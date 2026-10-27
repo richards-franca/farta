@@ -70,6 +70,17 @@
 .trustBar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; margin-top: 24px; padding: 18px 20px; color: #6c8165; background: #eef2e8; border-radius: 10px; font: var(--farta-type-caption); }
 .trustBar span { display: flex; gap: 10px; align-items: center; }
 .trustBar svg { flex: 0 0 22px; }
+.loadingLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.skeletonTitle, .skeletonDescription, .skeletonBanner, .skeletonCategory, .skeletonProduct > div, .skeletonProduct > span, .skeletonSummary { background: #e1e5df; border-radius: 10px; }
+.skeletonTitle { width: 55%; height: 26px; margin: 4px 0 16px; }
+.skeletonDescription { width: 36%; height: 12px; margin-bottom: 28px; }
+.skeletonBanner { height: 222px; margin-bottom: 34px; }
+.skeletonCategory { height: 88px; }
+.skeletonProduct { display: grid; gap: 14px; padding: 12px; background: #fff; border: var(--farta-border-default); border-radius: 12px; }
+.skeletonProduct > div { height: 140px; }
+.skeletonProduct > span { height: 16px; width: 80%; }
+.skeletonProduct > span:last-child { width: 100%; height: 38px; }
+.skeletonSummary { min-height: 420px; background: #fff; border: var(--farta-border-default); }
 @media (max-width: 1199px) { .chips { grid-template-columns: repeat(5, minmax(90px, 1fr)); } .productGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 640px) { .contextBar, .search { display: none; } }
 @media (max-width: 899px) { .workspace { grid-template-columns: minmax(0, 1fr); } .summary { position: static; } }
