@@ -26,7 +26,10 @@ async function ready(url){for(let i=0;i<90;i++){try{if((await fetch(url)).ok)ret
 async function login(page,who){await page.goto('http://127.0.0.1:3000/auth/login');await page.getByLabel('E-mail',{exact:true}).fill(who.email);await page.getByLabel('Senha',{exact:true}).fill(who.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await page.waitForURL(url=>!url.pathname.startsWith('/auth/'));assert.equal(new URL(page.url()).origin,'http://127.0.0.1:3000');}
 async function screenshot(page,name,fullPage=true){
  console.log('Capturing '+name);report.lastCapture=name;
- await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+ for(let attempt=0;;attempt++){
+  try{await page.waitForLoadState('domcontentloaded');await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));break;}
+  catch(error){if(attempt>=2||!String(error).includes('Execution context was destroyed'))throw error;}
+ }
  await page.waitForFunction(()=>document.fonts.status==='loaded',{},{timeout:10000});
  await page.screenshot({path:`${output}/${name}.png`,fullPage,timeout:15000,animations:'disabled'});
 }
@@ -94,6 +97,8 @@ try {
  await Promise.all([client.waitForNavigation({waitUntil:'domcontentloaded'}),client.getByRole('button',{name:'Confirmar preços e pedido',exact:true}).click()]);
  await expect(client.getByRole('button',{name:'Confirmar preços e pedido',exact:true})).toHaveCount(0);
  await expect.poll(async()=>{const result=await admin.from('orders').select('status').eq('id',submitted.data.id).single();assert.equal(result.error,null);return result.data.status;}).toMatch(/^(CUSTOMER_CONFIRMED|CONFIRMED)$/);
+ await expect(client.getByText('Confirmado',{exact:true}).first()).toBeVisible();
+ await client.waitForLoadState('networkidle');
  await screenshot(client,'order-confirmed');report.orderConfirmation=true;
  await responsive(client,'order-confirmed');
  await client.goto('http://127.0.0.1:3000/perfil');await expect(client.getByRole('heading',{name:'Meu perfil'})).toBeVisible();await screenshot(client,'profile');
