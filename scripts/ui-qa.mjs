@@ -43,7 +43,7 @@ try {
  await login(client,customer);await client.goto('http://127.0.0.1:3000/catalogo');
  await expect(client.getByRole('status').filter({hasText:'Carregando catálogo'})).toHaveCount(0);
  await expect(client.getByRole('region',{name:'Destaques'})).toHaveCount(0);
- await adminPage.getByLabel('Status',{exact:true}).selectOption('ACTIVE');await adminPage.getByRole('button',{name:'Salvar banner',exact:true}).click();await expect(adminPage.getByRole('status')).toContainText('Banner atualizado');
+ await adminPage.getByRole('combobox',{name:/Status/}).selectOption('ACTIVE');await adminPage.getByRole('button',{name:'Salvar banner',exact:true}).click();await expect(adminPage.getByRole('status')).toContainText('Banner atualizado');
  await client.reload();await expect(client.getByRole('heading',{name:'Destaque de validação'})).toBeVisible();
  await expect(client.getByRole('region',{name:'Destaques'}).locator('img')).toHaveJSProperty('naturalWidth',1);
  await screenshot(adminPage,'banner-admin');
@@ -53,7 +53,7 @@ try {
  await client.reload();await client.getByRole('button',{name:'Próximo destaque',exact:true}).click();await expect(client.getByRole('heading',{name:'Segundo destaque'})).toBeVisible();
  await client.getByRole('button',{name:'Pausar rotação'}).click();await expect(client.getByRole('button',{name:'Retomar rotação'})).toHaveAttribute('aria-pressed','true');
  await client.getByRole('button',{name:'Destaque anterior',exact:true}).click();await expect(client.getByRole('heading',{name:'Destaque de validação'})).toBeVisible();
- await adminPage.getByLabel('Status',{exact:true}).selectOption('INACTIVE');await adminPage.getByRole('button',{name:'Salvar banner',exact:true}).click();await expect(adminPage.getByRole('status')).toContainText('Banner atualizado');
+ await adminPage.getByRole('combobox',{name:/Status/}).selectOption('INACTIVE');await adminPage.getByRole('button',{name:'Salvar banner',exact:true}).click();await expect(adminPage.getByRole('status')).toContainText('Banner atualizado');
  await client.reload();await expect(client.getByRole('heading',{name:'Destaque de validação'})).toHaveCount(0);report.bannerLifecycle=true;
  await client.getByRole('button',{name:'Adicionar',exact:true}).first().click();await expect(client.getByRole('link',{name:'Ver pedido, 1 produtos distintos'})).toBeVisible();
  await screenshot(client,'catalog-filled');
