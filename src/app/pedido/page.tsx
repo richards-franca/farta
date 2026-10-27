@@ -471,7 +471,7 @@ export default function Pedido() {
         <div className={styles.content}>
           {picker}
           <Link className={styles.backLink} href="/catalogo">
-            ← Voltar ao catálogo
+            ← Continuar comprando
           </Link>
           <Card>
             <h1>Seu carrinho está vazio</h1>
@@ -501,7 +501,6 @@ export default function Pedido() {
       aria-busy={switchingEstablishment || savingAddress || confirming}
     >
       <div className={styles.content}>
-        {picker}
         {(infoMessage || confirmMessage || addressError) && (
           <div
             className={styles.notice}
@@ -514,12 +513,12 @@ export default function Pedido() {
           </div>
         )}
         <Link className={styles.backLink} href="/catalogo">
-          ← Voltar ao catálogo
+          ← Continuar comprando
         </Link>
         <h1>Vamos revisar seu pedido?</h1>
         <p className={styles.pageIntro}>Confira os produtos e as quantidades antes de enviar para análise.</p>
         <div className={styles.sharedCartNotice} role="status">
-          <strong>{selectedEstablishmentName} · Carrinho compartilhado</strong>
+          <div className={styles.sharedContext}>{picker}<strong>· Carrinho compartilhado</strong></div>
           <span>Sua equipe também pode adicionar e ajustar produtos neste pedido.</span>
         </div>
         <div className={styles.layout}>
@@ -705,6 +704,7 @@ export default function Pedido() {
           </div>
           <Card className={styles.summary}>
             <h2>Resumo do pedido</h2>
+            <p>{selectedEstablishmentName}</p>
             <p>
               Produtos diferentes <b aria-live="polite">{activeCart.items.length}</b>
             </p>

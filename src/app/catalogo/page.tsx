@@ -42,6 +42,7 @@ export default function Catalogo() {
     let active = true;
     Promise.all([getCustomerContext(), listCatalog(), getActiveCart(), listActiveBanners()]).then(([context, catalog, currentCart, activeBanners]) => {
       if (!active) return;
+      setQuery(new URLSearchParams(window.location.search).get('busca')??'');
       if (context.ok) { setEstablishments(context.establishments); setSelectedId(context.selected?.id ?? ""); } else setNotice(context.message);
       if (catalog.ok) setProducts(catalog.products); else setNotice(catalog.message);
       if (currentCart.ok) setCart(currentCart.cart); else setNotice(currentCart.message);
@@ -134,12 +135,11 @@ export default function Catalogo() {
         return <Card className={styles.product} key={product.skuId}>
           {product.priceMinor == null && <Badge tone="default">Preço não definido</Badge>}
           <div className={styles.productImage}><ProductImage src={imageUrl} alt={product.imageAlt ?? product.name} width={640} height={480} /></div>
-          <div className={styles.productCategory}>{product.category || "Farta"}</div>
-          <small>{product.brand} / {product.detail}</small>
+          <div className={styles.productCategory}>{product.brand || product.category || "Farta"}</div>
           <h2>{product.name}</h2>
+          <small>{product.detail}</small>
           <strong>{money(product.priceMinor)}</strong>
-          <p>{product.priceMinor == null ? "Indisponível para compra até um preço ser definido." : `Preço aproximado por ${label}`}</p>
-          <p className={styles.minimum}>Venda mínima: {minimum} {label}{minimum === 1 ? "" : "s"}</p>
+          <p className={styles.minimum}>{product.priceMinor == null ? 'Preço ainda não definido.' : 'Estimado'} / {product.saleUnit} · mínimo {minimum} {label}{minimum === 1 ? '' : 's'}</p>
           <div className={styles.productActions}>
             <label className={styles.quantityField} htmlFor={`catalog-quantity-${product.skuId}`}>
               <span>Quantidade</span>

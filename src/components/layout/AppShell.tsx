@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PrimaryNav } from "./PrimaryNav";
 import { SignOutButton } from "./SignOutButton";
@@ -15,6 +15,7 @@ import styles from "./AppShell.module.css";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router=useRouter();
   const shouldRenderShell = pathname ? !pathname.startsWith("/auth") && !pathname.startsWith("/acesso-negado") : false;
   const isAdmin = pathname?.startsWith("/admin") ?? false;
   const profileRoute=pathname==='/perfil';
@@ -61,6 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         : undefined);
   const showCustomerNotifications = customerShell;
   const catalogRoute = customerShell && pathname === "/catalogo";
+  const shoppingRoute=customerShell&&(catalogRoute||pathname==='/pedido');
   const adminWorkspaceLabel = pathname === "/admin/empresas" || pathname?.startsWith("/admin/empresas/")
     ? "Administração / Empresas"
     : pathname?.startsWith("/admin/produtos") || pathname?.startsWith("/admin/categorias")
@@ -95,8 +97,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {customerEstablishments.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
           </select> : <strong>{customerEstablishment}</strong>}
         </div> : customerShell ? <div className={styles.customerWorkspaceLabel}><small>Comprando para</small><strong>{customerEstablishment}</strong></div> : <span className={styles.workspaceLabel}>{isAdmin ? adminWorkspaceLabel : workspaceLabel}</span>}
-        {catalogRoute && <label className={styles.customerSearch}><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg><input type="search" aria-label="Buscar produto, marca ou embalagem" placeholder="Busque por produto, marca ou embalagem" onChange={event => updateCatalogSearch(event.target.value)} /></label>}
-        <div className={styles.actions}>{customerShell&&<Link className={styles.cartLink} href="/pedido" aria-label={`Ver pedido, ${cartCount} produtos distintos`}><CommerceIcon name="basket" /><b>{cartCount}</b></Link>}{showCustomerNotifications && <Link className={styles.notificationLink} href="/notificacoes" aria-label="Abrir notificações"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span>Notificações</span></Link>}<Link className={styles.profileLink} href="/perfil" aria-label="Abrir meu perfil"><b>{identity?.name?.slice(0,1).toUpperCase()||'•'}</b><span>Meu perfil</span></Link><SignOutButton className={styles.signOutButton} /></div>
+        {shoppingRoute && <label className={styles.customerSearch}><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg><input type="search" aria-label="Buscar produto, marca ou embalagem" placeholder="Busque por produto, marca ou embalagem" onChange={event => {if(catalogRoute)updateCatalogSearch(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&!catalogRoute)router.push('/catalogo?busca='+encodeURIComponent(event.currentTarget.value));}} /></label>}
+        <div className={styles.actions}>{customerShell&&!profileRoute&&<Link className={styles.cartLink} href="/pedido" aria-label={`Ver pedido, ${cartCount} produtos distintos`}><CommerceIcon name="basket" /><b>{cartCount}</b></Link>}{showCustomerNotifications && <Link className={styles.notificationLink} href="/notificacoes" aria-label="Abrir notificações"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span>Notificações</span></Link>}<Link className={styles.profileLink} href="/perfil" aria-label="Abrir meu perfil"><b>{identity?.name?.slice(0,1).toUpperCase()||'•'}</b><span>Meu perfil</span></Link><SignOutButton className={styles.signOutButton} /></div>
       </header>
       <div id="main-content" tabIndex={-1} className={styles.content}>{children}</div>
     </div>

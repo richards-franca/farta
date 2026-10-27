@@ -147,6 +147,13 @@ o piloto. Os limites iniciais precisam de medição sob carga real.
 
 ## Validação antes dos clientes
 
+A revisão de banners e interface de 27/10 está documentada em
+`docs/design/customer-banner-review-2026-10-27.md`. O release inclui Chromium com
+API e Supabase reais descartáveis; as capturas ficam no artifact `customer-ui-qa`.
+Para publicar o primeiro destaque: acessar `/admin/banners`, enviar imagem e texto,
+salvar como inativo, revisar e mudar o status para ativo. Sem banners ativos, a
+área desaparece do catálogo. Não é necessário reiniciar os containers após publicar.
+
 - Conferir login/sessão e fluxo completo de pedido com contas autorizadas.
 - Validar papéis, acesso entre empresas, convites, imagens e exportações.
 - Ensaiar retorno de versão, preservando o mesmo banco.
