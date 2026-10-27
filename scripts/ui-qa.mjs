@@ -11,7 +11,7 @@ assert.equal(process.env.NEXT_PUBLIC_SITE_URL,'http://127.0.0.1:3000');
 const admin=createClient(provider,process.env.FARTA_TEST_SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const company='00000000-0000-0000-0000-000000000001';
 const output='test-results/customer-ui';fs.mkdirSync(output,{recursive:true});
-const report={bannerLifecycle:false,customerJourney:false,responsiveWidths:[],consoleErrors:[]};
+const report={bannerLifecycle:false,customerJourney:false,orderConfirmation:false,responsiveWidths:[],consoleErrors:[]};
 const processes=[];let browser;
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==','base64');
 async function account(role){
@@ -63,10 +63,25 @@ try {
   await screenshot(client,`catalog-${width}`);report.responsiveWidths.push(width);
  }
  await client.setViewportSize({width:1440,height:1000});await client.goto('http://127.0.0.1:3000/pedido');await expect(client.getByRole('heading',{name:'Seus produtos'})).toBeVisible();await screenshot(client,'checkout');
+ const orderNote='UI validation '+randomUUID();
+ await client.getByRole('button',{name:/Test Street/}).first().click();
+ await client.getByLabel('Observações para a operação (opcional)').fill(orderNote);
+ await client.getByRole('button',{name:'Enviar pedido para análise',exact:true}).click();
+ await expect(client.getByRole('status').filter({hasText:/enviado para análise com sucesso/})).toBeVisible();
+ const submitted=await admin.from('orders').select('id').eq('customer_note',orderNote).single();assert.equal(submitted.error,null);
+ const items=await admin.from('order_items').select('sku_id,unit_price_minor').eq('order_id',submitted.data.id);assert.equal(items.error,null);
+ const operator=createClient(provider,process.env.FARTA_TEST_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+ const session=await operator.auth.signInWithPassword(platform);assert.equal(session.error,null);
+ const priced=await fetch('http://127.0.0.1:3001/v1/admin/admin/set-order-final-prices',{method:'POST',headers:{authorization:`Bearer ${session.data.session.access_token}`,'content-type':'application/json'},body:JSON.stringify({args:[submitted.data.id,items.data.map(item=>({skuId:item.sku_id,unitPriceMinor:item.unit_price_minor}))]})});
+ assert.equal((await priced.json()).ok,true);
+ await client.goto('http://127.0.0.1:3000/pedidos/'+submitted.data.id);await client.getByRole('button',{name:'Confirmar preços e pedido',exact:true}).click();
+ await expect(client.getByRole('button',{name:'Confirmar preços e pedido',exact:true})).toHaveCount(0);
+ await expect.poll(async()=>{const result=await admin.from('orders').select('status').eq('id',submitted.data.id).single();assert.equal(result.error,null);return result.data.status;}).toMatch(/^(CUSTOMER_CONFIRMED|CONFIRMED)$/);
+ await screenshot(client,'order-confirmed');report.orderConfirmation=true;
  await client.goto('http://127.0.0.1:3000/perfil');await expect(client.getByRole('heading',{name:'Meu perfil'})).toBeVisible();await screenshot(client,'profile');
  await client.goto('http://127.0.0.1:3000/pedidos');await expect(client.getByRole('heading',{name:/pedidos/i}).first()).toBeVisible();await screenshot(client,'orders');
- await client.goto('http://127.0.0.1:3000/notificacoes');await screenshot(client,'notifications');
- await client.goto('http://127.0.0.1:3000/mensagens');await screenshot(client,'messages');
+ await client.goto('http://127.0.0.1:3000/notificacoes');await expect(client.getByRole('heading',{name:'Notificações',exact:true})).toBeVisible();await screenshot(client,'notifications');
+ await client.goto('http://127.0.0.1:3000/mensagens');await expect(client.getByRole('heading',{name:'Mensagens',exact:true})).toBeVisible();await screenshot(client,'messages');
  await client.goto('http://127.0.0.1:3000/admin/banners');assert.ok(!new URL(client.url()).pathname.startsWith('/admin/'),'Customer reached banner admin');
  report.customerJourney=true;assert.deepEqual(report.consoleErrors,[]);
  console.log('UI checks passed: banner lifecycle, customer pages, role protection and five responsive widths.');
