@@ -2,7 +2,9 @@
 
 Estado: planejamento solicitado pelo usuário; nenhuma integração, cobrança ou
 migration de pagamento aplicada. Decisão confirmada: oferecer checkout depois
-de o cliente aceitar o valor final do pedido. Demais escolhas abaixo são propostas
+de o cliente aceitar o valor final do pedido. Atualização confirmada pelo usuário:
+usar Checkout Transparente para aplicar cores e estilização da Farta. Essa decisão
+substitui a sugestão anterior de Checkout Pro. Demais escolhas abaixo são propostas
 ou pendências, não regras comerciais aprovadas.
 
 ## Estado atual verificado
@@ -29,7 +31,7 @@ Fontes locais: `20261001000200_order_review_flow.sql`,
 | Recebedor | Conta única da Farta ou contas de fornecedores? Há comissão/divisão de valores? |
 | Conta | Titular e cadastro validados no Mercado Pago, acesso ao painel Developers e aplicação criada para o site. Conferir habilitação de produção no painel. |
 | Ambientes | Credenciais de teste/produção e identificação da aplicação/conta. Segredo de assinatura dos webhooks separado por configuração/ambiente. |
-| Experiência | Checkout hospedado no Mercado Pago ou pagamento dentro do site? Proposta inicial: Checkout Pro com redirecionamento. |
+| Experiência | Confirmado: Checkout Transparente na Farta. Escolher campos seguros/SDK compatíveis com o desenho; Card Payment Brick é uma proposta, não uma decisão final. |
 | Meios | Pix, crédito, débito ou boleto; disponibilidade validada na conta/produto contratado. Proposta inicial: Pix e cartão, sem boleto até definir prazo de reserva. |
 | Parcelamento | Número máximo, juros, quem absorve custos e taxas, política de recebimento escolhida. Conferir condições da conta; não fixar taxas pelo plano. |
 | Cobrança | Pagamento integral antecipado? Frete já está no total final? Existe desconto, sinal, pagamento na entrega ou faturamento a prazo? |
@@ -56,16 +58,37 @@ por estorno. Não implementar split implicitamente.
 3. Criação externa tem chave idempotente persistida ANTES da chamada. Repetições
    por timeout usam a MESMA chave; uma nova tentativa intencional recebe nova chave.
    Falhas externas deixam estado recuperável, sem exigir nova confirmação comercial.
-4. Cliente vai ao checkout e volta à página do pedido. Fechar a aba ou perder a
-   conexão não interrompe o acompanhamento do pagamento pelo servidor.
+4. Cliente paga na página da Farta. Campos seguros/SDK do Mercado Pago tokenizam
+   o cartão; o backend recebe o token necessário à operação, nunca PAN/CVV brutos.
+   Fechar a aba ou perder a conexão não interrompe o acompanhamento pelo servidor.
 5. Webhook assinado é validado, persistido com deduplicação e reconhecido rapidamente.
    Processamento consulta a API do Mercado Pago e verifica recebedor, ambiente,
    referência, moeda, valor e vínculo com o pedido antes de aplicar transição.
 6. Atualização transacional registra pagamento/histórico e libera a operação apenas
-   uma vez, conforme política aprovada. A URL de retorno nunca comprova pagamento.
+   uma vez, conforme política aprovada. A tela de resultado nunca comprova pagamento.
 7. Rotina periódica reconcilia pendências, recupera eventos que falharam e sinaliza
    divergências. Expiração/cancelamento externo, estoque e pagamentos tardios devem
-   ser coordenados; um link antigo não pode liberar um pedido cancelado.
+   ser coordenados; uma tentativa antiga não pode liberar um pedido cancelado.
+
+### Checkout Transparente e identidade visual
+
+- Página com layout, resumo do pedido, tipografia, cores e estados da Farta.
+  Personalizar os campos do provedor pelas opções oficialmente suportadas;
+  não depender de classes/IDs internos gerados pelo SDK.
+- Avaliar Card Payment Brick com temas/variáveis/textos customizáveis; caso o
+  desenho exija maior controle, avaliar a alternativa oficial de campos seguros.
+  Não transmitir dados brutos de cartão ao backend.
+- A Public Key pode inicializar o SDK no navegador; Access Token e segredo de
+  webhook continuam privados. Não persistir token de cartão em logs ou histórico.
+- A proteção discutida como "um link ativo" passa a ser uma sessão/tentativa ativa
+  por obrigação: a mesma página Farta pode ser reaberta sem criar nova cobrança.
+  O link da página não é o identificador do pagamento nem autoriza a operação.
+- Repetir o mesmo POST por timeout preserva chave idempotente. Uma tentativa de
+  cartão recusada pode exigir novo token/operação; consultar antes o estado externo
+  para não duplicar uma operação ainda pendente. Pix gerado deve ser recuperável
+  enquanto válido. Meios, prazos e política de tentativas ainda serão definidos.
+- Autenticação adicional do emissor, quando exigida, faz parte da integração;
+  não prometer ausência absoluta de desafios/redirecionamentos.
 
 Proposta V1: uma obrigação integral por pedido, sem sinal ou pagamento dividido;
 separação após pagamento aprovado, com prazo de reserva a definir. Pedidos antigos
@@ -83,7 +106,7 @@ Nomes e campos são proposta de desenho, ainda sem migration executável.
 | Tabela | Responsabilidade e campos principais |
 | --- | --- |
 | `order_payment_intents` | Obrigação do pedido: UUID, `order_id`, `company_id`, revisão de preço aceita, `amount_minor`, `currency`, política, estado financeiro agregado, validade, criador e datas. Snapshot imutável da cobrança aprovada. |
-| `payment_checkouts` | Sessões/tentativas de abrir cobrança: obrigação, provedor, ambiente, conta recebedora, chave idempotente, referência externa, ID da order/preferência no provedor, URL protegida, validade, estado de criação, datas e erro sanitizado. |
+| `payment_checkouts` | Sessões/tentativas de pagar: obrigação, provedor, ambiente, conta recebedora, chave idempotente, referência externa, ID da order/recurso da API escolhida, validade, estado de criação, datas e erro sanitizado. No Transparente não depende de URL externa de checkout; token de cartão não integra o histórico persistente. |
 | `payments` | Transações efetivas: checkout/obrigação, ID externo único, estado/detalhe original e normalizado, meio, parcelas, valor bruto aprovado, taxa e líquido quando disponibilizados, valor reembolsado, data de aprovação, previsão/data de disponibilidade e última sincronização. |
 | `payment_events` | Caixa de entrada de webhooks: chave de deduplicação conforme contrato do provedor, tipo, recurso externo, ambiente/recebedor, recebimento, processamento, tentativas, próximo retry, erro sanitizado e conteúdo mínimo necessário. Acesso somente interno. |
 | `payment_refunds` | Reembolsos parciais/integrais: pagamento, valor, motivo, solicitante, chave idempotente, ID externo, estado, datas e erro sanitizado. Solicitação e conclusão são fatos distintos. |
@@ -144,7 +167,8 @@ detalhe originais. Falha técnica de criar checkout não equivale a pagamento re
 
 ## Sequência de implementação e aceite
 
-1. Fechar recebedor, checkout, meios, prazos, estoque e políticas de exceção.
+1. Checkout Transparente já escolhido; fechar recebedor, meios, prazos, estoque
+   e políticas de exceção.
 2. Especificar contrato da API escolhida, modelo/estados, telas e permissões;
    adicionar migrations, tipos/contratos e documentação no mesmo GitHub.
 3. Testar schema/RLS em Supabase descartável; planejar classificação dos pedidos
@@ -168,13 +192,17 @@ interrupções; dados financeiros sobrevivem ao rollback da aplicação.
 ## Fontes oficiais consultadas em 27/10/2026
 
 - [Soluções e experiências de checkout](https://www.mercadopago.com.br/developers/pt/docs/getting-started)
+- [Checkout Transparente: cartões em websites](https://www.mercadopago.com.br/developers/pt/docs/checkout-api-orders/payment-integration/websites/cards?scope=prod)
+- [Customização visual dos Bricks](https://www.mercadopago.com.br/developers/en/docs/checkout-bricks/additional-content/modify-css-variables)
 - [Criar aplicação](https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-orders/create-application?scope=prod)
 - [Checkout Pro via Orders: criação, referência e idempotência](https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-orders/create-order?scope=prod)
 - [Webhooks de pagamento e assinatura](https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-orders/notifications?scope=prod)
 - [Contas de teste](https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-preferences/test-accounts)
 
-A documentação consultada separa Checkout Pro via Preferences e via Orders.
-Escolher uma variante disponível para a aplicação e seguir seu contrato inteiro;
-não combinar endpoints, estados ou estratégias de teste de variantes diferentes.
+Os links Checkout Pro são fontes da investigação inicial, anterior à escolha do
+usuário; não são o contrato da implementação final. Escolher a variante da API
+de Checkout Transparente disponível para a aplicação e seguir seu contrato inteiro;
+não combinar endpoints, estados ou estratégias de teste de Pro/Transparente ou
+de variantes diferentes.
 Revalidar detalhes na implementação. As regras financeiras e de banco deste plano
 são propostas para a Farta, não requisitos atribuídos ao Mercado Pago.
