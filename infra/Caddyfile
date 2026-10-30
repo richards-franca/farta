@@ -1,11 +1,24 @@
 www.farta.site {
-	redir https://farta.site{uri} permanent
+  redir https://farta.site{uri} permanent
 }
 
 farta.site {
-	encode zstd gzip
-	request_body {
-		max_size 8MB
-	}
-	reverse_proxy web:3000
+  encode zstd gzip
+  request_body {
+    max_size 8MB
+  }
+  reverse_proxy farta-lp:4173
+}
+
+portal.farta.site {
+  encode zstd gzip
+  reverse_proxy farta-lp:4173
+}
+
+app.farta.site {
+  encode zstd gzip
+  request_body {
+    max_size 8MB
+  }
+  reverse_proxy web:3000
 }

@@ -22,7 +22,7 @@ printf 'WEB_IMAGE=%s\nAPI_IMAGE=%s\nREVISION=%s\n' "$web" "$api" "$revision" > "
 compose "$release" pull
 if compose "$release" up -d --wait --wait-timeout 180 &&
    compose "$release" exec -T api node -e "fetch('http://127.0.0.1:3001/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" &&
-   curl -fsS --retry-all-errors --retry 12 --retry-delay 5 --connect-timeout 5 --max-time 10 --resolve farta.site:443:127.0.0.1 https://farta.site/api/health >/dev/null; then
+   curl -fsS --retry-all-errors --retry 12 --retry-delay 5 --connect-timeout 5 --max-time 10 --resolve app.farta.site:443:127.0.0.1 https://app.farta.site/api/health >/dev/null; then
   if [ -f releases/current.env ]; then cp releases/current.env releases/previous.env; fi
   cp "$release" releases/current.env
   printf 'Deployed %s\n' "$revision"
