@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const site='https://farta.site';
+const site='https://app.farta.site';
 for(const [route,target] of [
  ['/auth/after-login','/auth/login'],
  ['/auth/callback','/auth/login?error=auth_callback'],
@@ -13,7 +13,7 @@ for(const [route,target] of [
  await response.arrayBuffer();
  console.log(`${route}: redirect stays on the public domain`);
 }
-for(const [url,status] of [[site+'/api/health',200],[site+'/auth/login',200],['https://www.farta.site/',301],['http://farta.site/',308]]){
+for(const [url,status] of [[site+'/api/health',200],[site+'/auth/login',200],['https://farta.site/',200],['https://www.farta.site/',301],['http://farta.site/',308]]){
  const response=await fetch(url,{redirect:'manual',signal:AbortSignal.timeout(15_000)});
  assert.equal(response.status,status,url);
  await response.arrayBuffer();

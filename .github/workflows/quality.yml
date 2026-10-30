@@ -36,6 +36,6 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: public-build-placeholder
-          NEXT_PUBLIC_SITE_URL: https://farta.site
+          NEXT_PUBLIC_SITE_URL: https://app.farta.site
           FARTA_API_URL: http://127.0.0.1:3001
 

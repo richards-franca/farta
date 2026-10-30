@@ -1,5 +1,5 @@
 # Deliberately minimal: the CLI must preserve undeclared production Auth settings.
 project_id = "farta-production"
 [auth]
-site_url = "https://farta.site"
-additional_redirect_urls = ["farta-ivory.vercel.app", "http://localhost:3000/auth/callback", "https://farta-ivory.vercel.app/auth/callback", "https://farta-ivory.vercel.app/auth/reset-password", "https://farta.site/auth/callback", "https://farta.site/auth/reset-password"]
+site_url = "https://app.farta.site"
+additional_redirect_urls = ["farta-ivory.vercel.app", "http://localhost:3000/auth/callback", "https://farta-ivory.vercel.app/auth/callback", "https://farta-ivory.vercel.app/auth/reset-password", "https://app.farta.site/auth/callback", "https://app.farta.site/auth/reset-password"]
